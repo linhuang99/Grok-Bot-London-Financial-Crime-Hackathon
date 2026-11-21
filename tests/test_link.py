@@ -162,6 +162,70 @@ class SearchWithoutLink(LinkTest):
         self.assertEqual(self.resolve(alert(name=None), data), [])
 
 
+class MergesRecordsOfOnePerson(LinkTest):
+    def test_same_phone_and_full_date_of_birth_is_one_person(self):
+        data = self.data([customer("CUS-000001", "Maria Lopez", phone="+34 600 111 222"),
+                          customer("CUS-000002", "M. Lopez Garcia", dob="14/03/1985", phone="+34600111222")])
+        self.assertEqual(self.resolve(alert(), data), [["CUS-000001", "CUS-000002"]])
+
+    def test_same_phone_different_date_of_birth_is_family_not_one_person(self):
+        data = self.data([customer("CUS-000001", "Maria Lopez", phone="+34 600 111 222"),
+                          customer("CUS-000002", "Jorge Lopez", dob="1979-06-01", phone="+34 600 111 222")])
+        self.assertEqual(self.resolve(alert(), data), [["CUS-000001"]])
+
+    def test_year_only_date_of_birth_never_merges(self):
+        data = self.data([customer("CUS-000001", "Maria Lopez", dob="1985", phone="+34 600 111 222"),
+                          customer("CUS-000002", "Mia Lopez", dob="1985", phone="+34 600 111 222")])
+        self.assertEqual(self.resolve(alert(dob="1985"), data), [["CUS-000001"]])
+
+    def test_document_number_on_approved_checks_merges_and_chains(self):
+        records = [customer("CUS-000001", "Maria Lopez", phone="+34 600 000 001"),
+                   customer("CUS-000002", "Mery Lopes", dob="1990-01-01", phone="+34 600 000 002"),
+                   customer("CUS-000003", "Maria L.", dob="1990-01-01", phone="+34 600 000 002")]
+        path = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, path)
+        tables = {"alerts": [], "hits": [], "customers": records,
+                  "accounts": [{"account_id": "ACC-%06d" % i, "customer_id": r["record_id"]} for i, r in enumerate(records, 1)],
+                  "onboarding": [{"account_id": "ACC-%06d" % i, "customer_id": r["record_id"],
+                                  "kyc_applicant_id": "APP-%06d" % i} for i, r in enumerate(records, 1)],
+                  "kyc_checks": [{"check_id": "KYC-000001", "applicant_id": "APP-000001", "document_number": "P123",
+                                  "result": "approved", "checked_at": "2024-01-01"},
+                                 {"check_id": "KYC-000002", "applicant_id": "APP-000002", "document_number": "P123",
+                                  "result": "approved", "checked_at": "2024-01-01"}]}
+        for name, rows in tables.items():
+            with open(os.path.join(path, name + ".jsonl"), "w", encoding="utf-8") as f:
+                f.writelines(json.dumps(r) + "\n" for r in rows)
+        with contextlib.redirect_stderr(io.StringIO()):
+            data = load(path)
+        # 1 and 2 share a document number; 2 and 3 share a phone and a full date of birth.
+        self.assertEqual(self.resolve(alert(), data), [["CUS-000001", "CUS-000002", "CUS-000003"]])
+
+    def test_rejected_checks_document_number_does_not_merge(self):
+        records = [customer("CUS-000001", "Maria Lopez", phone="+34 600 000 001"),
+                   customer("CUS-000002", "Ana Ruiz", dob="1990-01-01", phone="+34 600 000 002")]
+        path = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, path)
+        tables = {"alerts": [], "hits": [], "customers": records,
+                  "accounts": [{"account_id": "ACC-%06d" % i, "customer_id": r["record_id"]} for i, r in enumerate(records, 1)],
+                  "onboarding": [{"account_id": "ACC-%06d" % i, "customer_id": r["record_id"],
+                                  "kyc_applicant_id": "APP-%06d" % i} for i, r in enumerate(records, 1)],
+                  "kyc_checks": [{"check_id": "KYC-000001", "applicant_id": "APP-000001", "document_number": "P123",
+                                  "result": "approved"},
+                                 {"check_id": "KYC-000002", "applicant_id": "APP-000002", "document_number": "P123",
+                                  "result": "rejected"}]}
+        for name, rows in tables.items():
+            with open(os.path.join(path, name + ".jsonl"), "w", encoding="utf-8") as f:
+                f.writelines(json.dumps(r) + "\n" for r in rows)
+        with contextlib.redirect_stderr(io.StringIO()):
+            data = load(path)
+        self.assertEqual(self.resolve(alert(), data), [["CUS-000001"]])
+
+    def test_two_found_records_of_one_person_become_one_person(self):
+        data = self.data([customer("CUS-000002", "Maria Lopez", phone="+34 600 111 222"),
+                          customer("CUS-000001", "Maria Lopez", phone="+34 600 111 222")])
+        self.assertEqual(self.resolve(alert(), data), [["CUS-000002", "CUS-000001"]])
+
+
 class FitsScreened(LinkTest):
     def setUp(self):
         self.d = self.data([])

@@ -58,6 +58,8 @@ customers.email ──> notes.requester_email
 
 - 146 alerts have no link. Searching by the screened details (name must agree; dob, country, city and type must fit) finds a customer for all of them: one record for 102, several for 44. All 12 unlinked practice labels find their accepted customer; the two labelled AMBIGUOUS find several people.
 
+- Merging records of one person (phone + full date of birth, or approved document number, transitively): 159 of the 512 records found grow into two-record people, and 29 alerts that looked ambiguous have fewer people. All 13 practice labels that accept two records match the merged person exactly.
+
 ## Accounts and KYC
 
 - **52 accounts have two holders** (joint accounts), one row per holder. Never assume one customer per account; pick the holder that fits the screened details.

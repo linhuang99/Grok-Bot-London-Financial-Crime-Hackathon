@@ -29,7 +29,7 @@ def person(record_ids, data):
     records = [data["customers_by_id"][i] for i in map(id_key, record_ids) if i in data["customers_by_id"]]
     if not records:
         raise ValueError("no known customer record among %r" % (record_ids,))
-    checks = _approved_checks(records, data)
+    checks = approved_checks(records, data)
     verified = _latest(checks)
 
     verified_name = None
@@ -81,7 +81,7 @@ def _may_have_other_records(records, data):
         for other in data["customers_by_phone"].get(phone_key(record.get("phone")), []):
             if other["record_id"] not in own and dob and None not in dob and parse_date(other.get("dob")) == dob:
                 return True
-    for check in _approved_checks(records, data):
+    for check in approved_checks(records, data):
         if set(data["customers_by_document"].get(text_key(check.get("document_number")), [])) - own:
             return True
     return False
@@ -106,7 +106,7 @@ def _notes(records, data):
     return found
 
 
-def _approved_checks(records, data):
+def approved_checks(records, data):
     """Approved identity checks: KYC table rows (record -> accounts -> onboarding -> checks) and KYC notes."""
     checks = [kyc_check(n) for n in _notes(records, data) if is_kyc_note(n) and n.get("note_id")]
     seen = {c["check_id"] for c in checks}

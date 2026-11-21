@@ -122,7 +122,7 @@ class DevData(unittest.TestCase):
         start = time.perf_counter()
         persons = [person(p, self.data) for p in people]
         self.assertTrue(all(self.resolve_all().values()))  # every alert finds at least one customer
-        self.assertEqual(len(persons), 512)
+        self.assertEqual(len(persons), 485)  # 512 records found; merging joins records of one person
         self.assertLess(time.perf_counter() - start, 5)
         self.assertTrue(all(p["legal_name"] for p in persons))
 
@@ -201,6 +201,15 @@ class DevData(unittest.TestCase):
             if not ok:
                 wrong.append(label["hit_id"])
         self.assertEqual(len(unlinked), 12)
+        self.assertEqual(wrong, [])
+
+    def test_scorecard_every_multi_record_label_is_one_merged_person(self):
+        people, wrong = self.resolve_all(), []
+        labels = [x for x in self.labels() if len(x["customer_record_ids"]) > 1]
+        for label in labels:
+            if not any(set(label["customer_record_ids"]) <= set(p) for p in people[label["alert_id"]]):
+                wrong.append(label["hit_id"])
+        self.assertEqual(len(labels), 13)
         self.assertEqual(wrong, [])
 
 

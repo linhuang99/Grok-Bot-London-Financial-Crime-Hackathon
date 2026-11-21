@@ -8,20 +8,25 @@ details pick between them. A single linked record is the customer.
 An alert with no link, or with a link that leads nowhere, is searched for:
 every record whose name agrees with the screened name and whose other details
 fit what was screened (checkpoint A6).
+
+Each record found is then grown into its person (principle 3, checkpoint A7):
+records sharing a phone and the same full date of birth, or a document number
+on approved checks, are one person, and so is any record linked to them.
 """
 import re
 import sys
 
 from common import country_name, dates_agree, fold, parse_date
-from data import id_key, text_key
+from customer import approved_checks
+from data import id_key, phone_key, text_key
 from names import company_names_agree, names_agree
 
 
 def resolve(alert, data):
     """The people the alert could be: a list of people, each a list of customer record IDs.
 
-    [] means no customer was found. Until records of one person are merged
-    (checkpoint A7), each person is a single record.
+    [] means no customer was found. A person's first ID is the record that was
+    found; the others are their other records, in ID order.
     """
     records = linked_records(alert, data)
     if not records:
@@ -31,7 +36,40 @@ def resolve(alert, data):
         records = search(alert, data)
     elif len(records) > 1:
         records = [r for r in records if fits_screened(alert, r, data)]
-    return [[id_key(r["record_id"])] for r in records]
+    people = []
+    for record in records:
+        record_id = id_key(record["record_id"])
+        if not any(record_id in p for p in people):
+            people.append(same_person(record_id, data))
+    return people
+
+
+def same_person(record_id, data):
+    """The record and every record of the same person: [record_id, others in ID order]."""
+    found, todo = {record_id}, [record_id]
+    while todo:
+        for other in _linked_records(data["customers_by_id"][todo.pop()], data):
+            if other not in found:
+                found.add(other)
+                todo.append(other)
+    return [record_id] + sorted(found - {record_id})
+
+
+def _linked_records(record, data):
+    """Records sharing a phone and the same full date of birth, or an approved document number.
+
+    A shared phone alone is not enough: family members often share one.
+    """
+    linked = set()
+    dob = parse_date(record.get("dob"))
+    if dob and None not in dob:
+        for other in data["customers_by_phone"].get(phone_key(record.get("phone")), []):
+            if parse_date(other.get("dob")) == dob:
+                linked.add(id_key(other["record_id"]))
+    for check in approved_checks([record], data):
+        linked.update(data["customers_by_document"].get(text_key(check.get("document_number")), []))
+    linked.discard(id_key(record["record_id"]))
+    return {r for r in linked if r in data["customers_by_id"]}
 
 
 def search(alert, data):
