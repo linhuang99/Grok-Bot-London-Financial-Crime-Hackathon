@@ -1,5 +1,7 @@
 # Demo: slides and video script
 
+**Team ucl compsci newbies:** Lin Huang, Gary Yeh.
+
 **Slide deck:** https://claude.ai/artifact/CXxBeVy43Q7brboKVysnba (4 slides with speaker notes; Share it from its page, or export it as PDF or PowerPoint, before sending the link).
 
 The video is 2 minutes: four slides plus live screen recordings of the system.
@@ -25,7 +27,7 @@ python3 -c "import sys; sys.path.insert(0,'system'); from common import ages_at_
 
 ## Slide text
 
-1. **Same Person or Not?** Watchlist screening that clears false matches safely, never clears a real one, and shows its evidence every time.
+1. **Same Person or Not?** Watchlist screening that clears false matches safely, never clears a real one, and shows its evidence every time. ucl compsci newbies · Lin Huang, Gary Yeh.
 2. **It resolves both sides before it compares them.** Who is the customer? Who is the listed person? The bank's policy decides: clear only on a hard contradiction backed by complete facts, confirm only on agreement, send everything else to a person.
 3. **Tested to fail safe, not just to score well.** 0 unsafe clearances · 190 labelled test hits (88 adversarial, built from the policy alone) · 262 automated tests. Same output every run, about 3 seconds for 819 hits, no AI model, no cost.
-4. **Clear the noise. Never clear a real match. Show the evidence every time.**
+4. **Clear the noise. Never clear a real match. Show the evidence every time.** ucl compsci newbies · Lin Huang, Gary Yeh · Track 2: Is my customer sanctioned?

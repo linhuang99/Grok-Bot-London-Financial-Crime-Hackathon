@@ -1,5 +1,7 @@
 # Same Person or Not? A watchlist screening resolver
 
+**Team ucl compsci newbies:** Lin Huang, Gary Yeh. Track 2, Grok Bot London Financial Crime Hackathon.
+
 For every watchlist hit, the system decides `DIFFERENT_ENTITY`, `SAME_ENTITY` or `REVIEW`, following the bank's identity SOP (`POLICY.md`). It clears a hit only on a contradiction backed by complete facts on both sides, confirms only on agreement, and sends everything else to a person. A wrong clearance lets a listed person stay a customer, so anything the system cannot read becomes `REVIEW`, never a guess.
 
 ```sh
