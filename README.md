@@ -12,6 +12,10 @@ Download the data room zip from the event's participant access (the link is in t
 
 ## Run and check
 
+For the optional local review interface, see [UI bridge](ui/README.md). It connects the existing
+TraceSphere workspace to the unchanged runner, with source inspection and explicit scoring.
+The screening engine still requires only the Python standard library.
+
 ```sh
 system/run dev output/dev.jsonl
 python3 validate.py --data dev --output output/dev.jsonl --score dev/practice_labels.jsonl

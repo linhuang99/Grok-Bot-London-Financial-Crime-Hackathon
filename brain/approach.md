@@ -1,5 +1,14 @@
 # Approach
 
+## Optional local review UI
+
+The existing external TraceSphere UI invokes `ui/bridge.py` in an isolated subprocess.
+It runs the unchanged `system/run` and exposes existing `link.resolve`, `customer.person`
+and `hitfacts.hit_facts` for per-hit source inspection. This is an adapter, not another classifier.
+UI dependencies remain in the visual project; the bridge/submission stay standard-library-only.
+Input/engine fingerprints invalidate stale results. Manual notes do not overwrite predictions.
+Official `validate.py` checks generated outputs; gold labels enter only explicit evaluation.
+
 Rules in code do the deciding; `dev/POLICY.md` is close to an algorithm. A language model is at most a fallback for reading free text worded in ways our patterns miss, and it only extracts facts.
 
 ## Pipeline (per alert, then per hit)
