@@ -15,6 +15,8 @@ sys.path.insert(0, os.path.join(ROOT, "system"))
 from common import country_at_end, country_name, parse_date  # noqa: E402
 from data import find_search_results, id_key, load, text_key  # noqa: E402
 from link import linked_records, resolve  # noqa: E402
+from customer import person  # noqa: E402
+import re  # noqa: E402
 import json  # noqa: E402
 
 DEV = os.path.join(ROOT, "dev")
@@ -110,6 +112,59 @@ class DevData(unittest.TestCase):
                  or len(people[x["alert_id"]]) != 1]
         self.assertEqual(len(linked), 38)
         self.assertEqual(wrong, [])
+
+    def labels(self):
+        with open(os.path.join(DEV, "practice_labels.jsonl"), encoding="utf-8") as f:
+            return [json.loads(line) for line in f]
+
+    def test_person_builds_for_every_resolved_alert(self):
+        people = [p for ps in self.resolve_all().values() for p in ps]
+        start = time.perf_counter()
+        persons = [person(p, self.data) for p in people]
+        self.assertEqual(len(persons), 294)
+        self.assertLess(time.perf_counter() - start, 5)
+        self.assertTrue(all(p["legal_name"] for p in persons))
+
+    def test_scorecard_latest_approved_check_matches_every_label_path(self):
+        # Practice labels are read by this test only, never by the system.
+        people, checked = self.resolve_all(), 0
+        for label in self.labels():
+            for step in label["path"]:
+                cited = re.search(r"latest approved check (KYC-[0-9A-F]+)", step)
+                if not cited:
+                    continue
+                start = re.match(r"(CUS-\d+)", step)
+                if not start and not people[label["alert_id"]]:
+                    continue  # an unlinked alert: its customer is found in A6
+                ids = [start.group(1)] if start else people[label["alert_id"]][0]
+                self.assertEqual(person(ids, self.data)["verified_name"]["source"], cited.group(1), label["hit_id"])
+                checked += 1
+        self.assertEqual(checked, 30)  # the other 2 paths are unlinked alerts (A6)
+
+    def test_kyc_evidence_of_linked_labels_is_among_our_sources(self):
+        people, missing = self.resolve_all(), []
+        alerts = {a["alert_id"]: a for a in self.data["alerts"]}
+        for label in self.labels():
+            if not linked_records(alerts[label["alert_id"]], self.data):
+                continue
+            p = person(people[label["alert_id"]][0], self.data)
+            sources = {f["source"] for f in [p["verified_name"], p["dob"]] + p["countries"] if f}
+            missing += [(label["hit_id"], e) for e in label["evidence"] if e.startswith("KYC-") and e not in sources]
+        self.assertEqual(missing, [])
+
+    def test_latest_check_not_approved_still_uses_the_approved_one(self):
+        cases = 0
+        for record in self.data["customers"]:
+            checks = []
+            for account in self.data["accounts_by_customer"].get(record["record_id"], []):
+                applicant = self.data["applicant_by_account_customer"].get((account["account_id"], record["record_id"]))
+                checks += self.data["kyc_by_applicant"].get(applicant, [])
+            approved = [c for c in checks if c["result"] == "approved"]
+            if approved and max(checks, key=lambda c: c["checked_at"])["result"] != "approved":
+                cases += 1
+                self.assertEqual(person([record["record_id"]], self.data)["verified_name"]["source"],
+                                 max(approved, key=lambda c: c["checked_at"])["check_id"])
+        self.assertEqual(cases, 1684)
 
 
 if __name__ == "__main__":

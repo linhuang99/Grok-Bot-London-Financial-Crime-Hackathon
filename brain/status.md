@@ -10,6 +10,7 @@ Update this when you claim or finish a task, or when the score changes.
 | 21 Nov, 14:20 (A2) | 0.0 | 0 | 819 lines, 0 problems; runner still all REVIEW; 68 unit tests pass |
 | 21 Nov, 14:35 (common.py fixes) | 0.0 | 0 | 79 unit tests pass |
 | 21 Nov, 14:15 (A3) | 0.0 | 0 | `link.resolve` finds the accepted customer for 38/38 linked practice labels; not yet called by `run`; 102 unit tests pass |
+| 21 Nov, 14:40 (A4) | 0.0 | 0 | `customer.person` picks the exact latest approved check on 30/30 label paths; not yet called by `run`; 126 unit tests pass |
 
 ## Tasks
 
@@ -18,7 +19,7 @@ Plan and times: `brain/roadmap.md`. Edit only your own rows.
 | Task | Owner | State |
 |---|---|---|
 | Repo scaffold, `brain/`, agent instructions, roadmap | garyyehhh | done |
-| **Lane A** (customer side): checkpoints A2-A7 in `brain/roadmap.md` | garyyehhh | A3 done, A4 next |
+| **Lane A** (customer side): checkpoints A2-A7 in `brain/roadmap.md` | garyyehhh | A4 done, A5 next |
 | `common.py` (dates, countries) | garyyehhh (from linhuang) | Done; fixes 2 and 4 below done, 3 and 5 pending |
 | `names.py` (principle 8, with tests) | linhuang | First implementation and unit tests complete; integration pending |
 | `hitfacts.py` (names, dobs, countries, reports, death) | linhuang | First implementation and unit tests complete; integration pending |
@@ -33,7 +34,7 @@ Checked against every date and country value in `dev/`: dates agree with Lane A'
 
 1. **For linhuang (`hitfacts.py`): `search_query` misses search results.** The stored queries drop single-letter initials (`Mitchell, Charlee D.` is stored as `charlee mitchell`) and drop letters such as `ł` (`Paweł` is stored as `pawe`). `search_query` keeps both, so `hitfacts` finds results for only 670 of the 702 individual hits. Fix: in `hitfacts.py`, replace the `index.get(search_query(name), [])` lookup with `data.find_search_results(data, name)`, which finds all 702 (tested in `tests/test_data.py` and `tests/test_dev_coverage.py`).
 2. **Done (garyyehhh).** "NA" no longer maps to Namibia: `NA`, `N/A`, `Unknown`, `None`, `TBC` and similar are not countries.
-3. **For garyyehhh (`common.py`), before `decide.py` clears on location: unrecognised and "not a country" both return `None`.** A region ("Europe") should be ignored, but an unrecognised country ("Jamaican", "England" are not in the alias list) should block a location clear, because dropping it can invent a mismatch. Fix: a way for `decide.py` to tell them apart, for example a `NOT_COUNTRIES` set or an `unrecognised` flag in the facts.
+3. **Customer side done in A4 (`Person["unreadable_countries"]`); hit side still open for `decide.py`: unrecognised and "not a country" both return `None`.** A region ("Europe") should be ignored, but an unrecognised country ("Jamaican", "England" are not in the alias list) should block a location clear, because dropping it can invent a mismatch. Fix: a way for `decide.py` to tell them apart, for example a `NOT_COUNTRIES` set or an `unrecognised` flag in the facts.
 4. **Done (garyyehhh).** Years outside 1800-2100 now parse as unknown, so a typo year cannot create a false `DOB_MISMATCH`.
 5. **For garyyehhh (`common.fold`), later: non-Latin aliases (204 in dev, Arabic and Cyrillic) cannot be compared.** Judges: a different script is not a different name, and transliteration is expected. Cyrillic and Greek can use a fixed letter table; until then an unreadable alias must block a `NAME_MISMATCH_VERIFIED` clear.
 

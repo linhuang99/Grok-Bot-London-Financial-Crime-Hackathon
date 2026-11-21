@@ -12,7 +12,7 @@ hit ───> 4. hit facts ─────────────────�
 
 1. **Resolve customer** (`system/link.py`, lane A): follow `account_ref`, `login_handle` or `email`. Joint accounts and unlinked alerts give candidates; keep those that fit the screened name, dob (every part both give), country and city.
 2. **Merge into people** (`system/link.py`, lane A): same phone + same full dob, or same document number on approved checks, transitively. Several people left: decide the hit for each; same answer for all, give it; otherwise `REVIEW` + `AMBIGUOUS_CUSTOMER_RECORD`. Either way `customer_record_id = "AMBIGUOUS"`.
-3. **Customer facts** (`system/profile.py`, free text read by `system/notes.py`, lane A): legal name, dob and document country from the latest approved check (KYC table or a KYC note); all countries from every record, the document and notes.
+3. **Customer facts** (`system/customer.py`, free text read by `system/notes.py`, lane A): legal name, dob and document country from the latest approved check (KYC table or a KYC note); all countries from every record, the document and notes.
 4. **Hit facts** (`system/hitfacts.py`): names and aliases; possible birth years and dates from `dobs`, profile notes, then filtered search results; countries; earliest dated report; date of death.
 5. **Compare** (`system/names.py` for names): name agreement per principle 8 of the policy, dob agreement or contradiction, country overlap, entity type.
 6. **Decide** (`system/decide.py`): contradictions first (time, dob, location, name, type, deceased) give `DIFFERENT_ENTITY`; then agreement (person: name + dob; company: name + country) gives `SAME_ENTITY`; otherwise `REVIEW`. A country difference never clears a hit whose name and dob agree.
@@ -85,22 +85,29 @@ fits_screened(alert, record, data) -> bool  # principle 2 fit: name, dob, countr
 data = data.load(folder)                  # once
 people = link.resolve(alert, data)        # per alert
 # until A4: customer_record_id = people[0][0] if len(people) == 1 else ("AMBIGUOUS" if people else None)
-# from A4:  persons = [profile.person(record_ids, data) for record_ids in people]   -> Person below
+# from A4:  persons = [customer.person(record_ids, data) for record_ids in people]   -> Person below
 ```
 
-`profile.person` (A4) builds:
+`customer.person(record_ids, data)` (A4, done) builds:
 
 ```python
 Person = {
     "record_ids": ["CUS-..."],            # all records of this person
     "record_id": "CUS-...",               # the one to output
     "entity_type": "Individual" | "Company",
-    "verified_name": Fact | None,         # latest approved check
-    "names": [Fact],                      # verified first, then record, preferred and login names
-    "dob": Fact | None,                   # value is a PartialDate; verified beats declared
-    "countries": [Fact],                  # residence, nationality, document country, places in notes
+    "verified_name": Fact | None,         # latest APPROVED check (rejected/expired never count)
+    "legal_name": Fact,                   # verified_name if any, else the record's full name (CUS source)
+    "names": [Fact],                      # legal name first, then every record name, no repeats
+    "dob": Fact | None,                   # verified if readable, else declared; companies: incorporation date
+    "countries": [Fact],                  # residence + nationality of every record, document country of every approved check
+    "unreadable_countries": [Fact],       # non-empty values we could not read as a country (incl. "NA")
 }
 ```
+
+**Rules for `decide.py` when using a Person:**
+- Compare the hit's names with `legal_name`. Clear on `NAME_MISMATCH_VERIFIED` only when `verified_name` is not `None`.
+- **Never clear on `LOCATION_MISMATCH` while `unreadable_countries` is not empty**: an unreadable value might be the matching country.
+- A fact's `source` is the evidence ID to cite (`CUS-...` or `KYC-...`), as the practice labels do.
 
 `system/hitfacts.py` (lane B)
 

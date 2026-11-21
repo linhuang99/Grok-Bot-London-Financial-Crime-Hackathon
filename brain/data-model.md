@@ -62,6 +62,14 @@ customers.email ──> notes.requester_email
 - `kyc_checks.result`: approved, rejected or expired. Only approved checks are evidence; the most recent approved one wins for legal name, dob and document country.
 - `verified_dob` uses the same mix of formats as customer dobs.
 
+## Customer identity (checked during A4)
+
+- Every customer has exactly one KYC applicant; 22,691 individuals have no check at all (use declared facts).
+- Each customer has 0, 1 (approved) or 2 checks (one approved, one rejected or expired). **1,684 customers have a newer rejected or expired check than their approved one**: always take the latest *approved* check.
+- The latest approved check's verified name differs from the record's full name for 10,424 customers; 10,386 of those only add a middle name or fix a typo, but **38 are a different first name altogether** (the record name is wrong).
+- The verified date of birth differs from the record's for 21 customers. Verified dates of birth are never missing.
+- Company customers have a "registry extract" check: verified company name, incorporation date and country, no document number.
+
 ## Notes
 
 - `channel`: kyc (22,575), phone, app, email. KYC-channel notes can record an identity verification done outside the KYC provider table (name, dob, document country), which counts like an approved check.
