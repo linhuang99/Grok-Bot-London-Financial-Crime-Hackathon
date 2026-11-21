@@ -71,3 +71,9 @@ customers.email ──> notes.requester_email
 ## Practice labels
 
 28 `DIFFERENT_ENTITY`, 12 `SAME_ENTITY`, 10 `REVIEW`. The most common reason is `LOCATION_MISMATCH` (15+). `reason_codes` lists every accepted code; `customer_record_ids` lists every accepted record (`AMBIGUOUS` in 2 labels); `path` shows the route through the files.
+
+## Checked during Lane B implementation
+
+- Country strings may have trailing bracketed role labels such as `[Associated]` or `[PEP]`; strip the label before exact country normalisation. Address countries are taken from the final comma/semicolon-delimited component. Territories remain distinct.
+- Some profile report dates do not use the exact English `According to ...; Month D, YYYY:` line specified by the policy. These are intentionally excluded from earliest-report extraction.
+- Birth-date source precedence: structured `dobs`, then the first profile paragraph, then supplied search results. Company incorporation dates use only `dobs`.

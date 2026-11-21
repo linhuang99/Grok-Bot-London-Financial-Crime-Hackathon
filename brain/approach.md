@@ -90,3 +90,11 @@ decide(alert, persons, facts) -> dict   # one output line, the fields in brain/b
 ## Module ownership
 
 See `brain/roadmap.md` for lanes and `brain/status.md` for who holds what right now.
+
+## Lane B implementation notes
+
+The agreed `parse_date`, `country_name`, `names_agree`, and `hit_facts` interfaces above remain unchanged. All imports use only Python's standard library. `countries.json` is a bundled code/name table seeded from public-domain tzdata, not participant data.
+
+Additional helpers: `company_names_agree(a,b,variants)` removes corporate legal forms; `usable_individual_name(name)` implements the two-real-parts customer gate. Keep personal and company matching separate. `names_agree` alone is NOT a complete identity decision, and a valid single-part hit alias is not the same as a sufficient customer name.
+
+Unknown country strings return None, and unknown dates remain unknown. Consumers must not interpret missing or unparsed evidence as a contradiction. No model/API calls or practice-label reads occur in Lane B modules. The caller provides `search_by_query`; only matching-name queries with the policy's listing phrase and a tied country may supply fallback birth dates. Age-derived years remain alternatives. Every extracted fact carries its supporting record/field ID.
