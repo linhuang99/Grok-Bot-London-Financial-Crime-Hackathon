@@ -21,8 +21,8 @@ Plan and times: `brain/roadmap.md`. Edit only your own rows.
 | Repo scaffold, `brain/`, agent instructions, roadmap | garyyehhh | done |
 | **Lane A** (customer side): checkpoints A2-A7 in `brain/roadmap.md` | garyyehhh | A4 done, A5 next |
 | `common.py` (dates, countries) | garyyehhh (from linhuang) | Done; fixes 2 and 4 below done, 3 and 5 pending |
-| `names.py` (principle 8, with tests) | linhuang | First implementation and unit tests complete; integration pending |
-| `hitfacts.py` (names, dobs, countries, reports, death) | linhuang | First implementation and unit tests complete; integration pending |
+| `names.py` (principle 8, with tests) | linhuang | V1 extraction and compatibility tests complete; shared decision integration pending |
+| `hitfacts.py` (names, dobs, countries, reports, death) | linhuang | V1 extraction and compatibility tests complete; shared decision integration pending |
 | `decide.py` with reasons and evidence | both | Not started; needs Lane A's `Person` (A3-A4) |
 | `system/README.md` | linhuang | Pending final architecture and worked cases |
 | Reason quality pass | garyyehhh | 16:15-16:40 |
@@ -32,11 +32,11 @@ Plan and times: `brain/roadmap.md`. Edit only your own rows.
 
 Checked against every date and country value in `dev/`: dates agree with Lane A's version on all ~180,000 values, and every customer-side country is recognised. These are gaps for the unseen set:
 
-1. **For linhuang (`hitfacts.py`): `search_query` misses search results.** The stored queries drop single-letter initials (`Mitchell, Charlee D.` is stored as `charlee mitchell`) and drop letters such as `ł` (`Paweł` is stored as `pawe`). `search_query` keeps both, so `hitfacts` finds results for only 670 of the 702 individual hits. Fix: in `hitfacts.py`, replace the `index.get(search_query(name), [])` lookup with `data.find_search_results(data, name)`, which finds all 702 (tested in `tests/test_data.py` and `tests/test_dev_coverage.py`).
+1. **Done in laneB compatibility update (linhuang).** `hitfacts.py` uses Lane A's `data.search_keys` for initials, accents and alternate stored spellings. It reads raw indexed rows to retain conflicting duplicate-ID detection, and validates row queries using the same normalisation. Synthetic cross-module tests cover missed initials, alternate spellings and conflicts.
 2. **Done (garyyehhh).** "NA" no longer maps to Namibia: `NA`, `N/A`, `Unknown`, `None`, `TBC` and similar are not countries.
-3. **Customer side done in A4 (`Person["unreadable_countries"]`); hit side still open for `decide.py`: unrecognised and "not a country" both return `None`.** A region ("Europe") should be ignored, but an unrecognised country ("Jamaican", "England" are not in the alias list) should block a location clear, because dropping it can invent a mismatch. Fix: a way for `decide.py` to tell them apart, for example a `NOT_COUNTRIES` set or an `unrecognised` flag in the facts.
+3. **Customer side done in A4 (`Person["unreadable_countries"]`); hit-side V1 `quality/issues` now implemented; final `decide.py` consumption remains pending. Unrecognised and "not a country" both return `None` from the legacy country helper.** A region ("Europe") should be ignored, but an unrecognised country ("Jamaican", "England" are not in the alias list) should block a location clear, because dropping it can invent a mismatch. Fix: a way for `decide.py` to tell them apart, for example a `NOT_COUNTRIES` set or an `unrecognised` flag in the facts.
 4. **Done (garyyehhh).** Years outside 1800-2100 now parse as unknown, so a typo year cannot create a false `DOB_MISMATCH`.
-5. **For garyyehhh (`common.fold`), later: non-Latin aliases (204 in dev, Arabic and Cyrillic) cannot be compared.** Judges: a different script is not a different name, and transliteration is expected. Cyrillic and Greek can use a fixed letter table; until then an unreadable alias must block a `NAME_MISMATCH_VERIFIED` clear.
+5. **Transliteration remains for garyyehhh; Lane B now blocks unreadable-script name clears.** Non-Latin aliases (204 in dev, Arabic and Cyrillic) cannot be compared.** Judges: a different script is not a different name, and transliteration is expected. Cyrillic and Greek can use a fixed letter table; until then an unreadable alias must block a `NAME_MISMATCH_VERIFIED` clear.
 
 ## Open questions
 
@@ -51,20 +51,20 @@ Checked against every date and country value in `dev/`: dates agree with Lane A'
 - Lane A files, `decide.py`, and `system/run` were not changed. The modules are not connected to the placeholder runner, so score 0.0 is the baseline, not evidence of correct identity decisions.
 - Official inputs and validator are local ignored files. Predictions are generated only by `system/run`.
 
+## Lane B compatibility integration
+
+- Imported main's A2-A4 changes into **laneB**, not the other way around. `common.py` keeps `dates_agree`, the 1800-2100 protection and country-placeholder handling; Lane B's tuple validation and V1 helpers remain additive. Main ownership of the shared helper file is unchanged.
+- `hitfacts.py` shares Lane A search normalisation, preserves source conflicts, and records unreadable non-Latin name scripts as blocking name issues. This does not implement transliteration.
+- New Lane B `quality.adapt_person` copies a legacy Person, preserves `unreadable_countries` and maps `dob` to a provenance-preserving `births` alias. No producer code in `customer.py`, `data.py` or `link.py` was edited beyond importing their existing commits.
+- Caller coverage is UNKNOWN by default. `complete_fields` may be supplied only after the producer's investigation actually covers that field; an empty unreadable list does not certify complete investigation. Existing versioned quality is never silently upgraded.
+- The shared decision module remains unimplemented. The runner still returns all REVIEW; compatibility checks are not an identity accuracy claim.
+
 ## Latest checks
 
-After the system edit, ran the three required commands in order:
+After the batched system merge/edit ran all three AGENTS.md commands in order. Final working-tree results: **180 tests passed with no skips, 819 output lines, 0 validator problems, 0 unsafe clearances, practice decision score 0.0**. The all-REVIEW runner is unchanged; these are compatibility results, not a scored decision implementation.
 
-```sh
-system/run dev output/dev.jsonl
-python3 validate.py --data dev --output output/dev.jsonl --score dev/practice_labels.jsonl
-python3 -m unittest discover tests
-```
-
-Results: **819 lines, 0 format problems, 0 unsafe clearances, decision score 0.0; 32 unit tests passed**. New tests cover standard-library imports, no current model/network calls, no literal participant IDs/practice-label paths, unknown values, input immutability, ordering and cross-process hash-seed stability. These are guardrails, not a proof of complete policy correctness.
-
-The earlier implementation ran full checks before upload, rather than after every intermediate edit. This is a recorded process deviation; it cannot be retroactively corrected. This revision ran full checks immediately after its batched system edit. Future system edits require the same three-command gate.
+Updated the Lane B README and shared approach to document the adapter, retained helper behaviour, unsupported-script block and caller coverage obligations. Final decision integration remains pending.
 
 ## Sync
 
-Command-line GitHub HTTPS authentication is unavailable. GitHub Desktop fetched origin before this edit; local laneB matched origin/laneB. Do not force push or overwrite a teammate's work.
+Command-line HTTPS credentials are unavailable. GitHub Desktop fetched origin; laneB and main matched their remote refs before integration. Merge target: origin/main at e149bae. Never force-push.

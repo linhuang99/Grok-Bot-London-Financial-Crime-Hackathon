@@ -2,6 +2,13 @@
 
 Newest first. One line for the choice, one for why.
 
+**21 Nov: Integrate main into laneB and bridge the existing customer contract instead of overwriting it.**
+User authorised conflict repair on laneB. Preserve Lane A shared helpers and producer code; share search normalisation while retaining duplicate-source conflict checks. A separate Lane B adapter adds conservative V1 quality with explicit upstream-coverage attestation. Unreadable scripts block name clears until transliteration is available.
+
+**21 Nov: Keep V1 quality additive and fail closed.**
+Missing, partial and unparsed fields do not support full-set contradictions. Legacy Person metadata is not automatically complete, and the comparison layer still decides according to the SOP.
+
+
 **21 Nov: Customer facts live in `system/customer.py`, not `profile.py`.**
 Python's standard library has a `profile` module; ours would hide it (and break `cProfile`) depending on import order.
 

@@ -34,6 +34,8 @@ def parse_date(text):
         if len(text) != 3:
             return None
         y, m, d = text
+        if any(v is not None and (not isinstance(v, int) or isinstance(v, bool)) for v in text):
+            return None
     elif isinstance(text, str):
         s = text.strip()
         iso = re.fullmatch(r'(\d{4})(?:-(\d{1,2})(?:-(\d{1,2}))?)?', s)
@@ -176,3 +178,44 @@ def countries_in_text(text):
 
 def search_query(name):
     return ' '.join(sorted(re.findall(r'\w+', fold(name))))
+
+
+def country_parse_status(value, *, address=False):
+    """(status, canonical): ignored policy regions differ from parse failures."""
+    if value is None or (isinstance(value, str) and not value.strip()):
+        return 'MISSING', None
+    if not isinstance(value, str):
+        return 'UNPARSED', None
+    canonical = country_at_end(value) if address else country_name(value)
+    if canonical:
+        return 'PARSED', canonical
+    tail = re.split(r'[,;\n]', value)[-1] if address else value
+    if _country_key(tail) in {'international', 'europe'}:
+        return 'IGNORED', None
+    return 'UNPARSED', None
+
+
+def field_is_complete(facts, field):
+    """V1 parsing gate, NOT an identity decision. Unknown contracts fail closed.
+
+    Both sides must meet the relevant rule's requirements. PARSED does not
+    mean verified or true; blocking conflicts still veto this gate.
+    """
+    if not isinstance(facts, dict) or facts.get('quality_version') != 1:
+        return False
+    quality = facts.get('quality')
+    issues = facts.get('issues')
+    if not isinstance(quality, dict) or not isinstance(issues, list):
+        return False
+    entry = quality.get(field)
+    if not isinstance(entry, dict) or entry.get('status') != 'PARSED':
+        return False
+    parsed = entry.get('parsed')
+    if not isinstance(parsed, int) or isinstance(parsed, bool) or parsed <= 0 or entry.get('unparsed') != 0:
+        return False
+    for issue in issues:
+        if not isinstance(issue, dict):
+            return False
+        if issue.get('field') in (field, '*') and issue.get('blocking', True):
+            return False
+    return True

@@ -7,6 +7,8 @@ _PLACEHOLDERS = {'na', 'n/a', 'test', 'unknown', 'xxx', 'none', 'null', 'n', 'a'
 
 
 def name_parts(name, variants=None, *, company=False):
+    if not isinstance(name, str):
+        return ()
     text = fold(name)
     previous = None
     while text != previous:
