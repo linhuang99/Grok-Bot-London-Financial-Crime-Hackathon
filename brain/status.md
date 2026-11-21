@@ -19,6 +19,17 @@ Update this when you claim or finish a task, or when the score changes.
 
 ## Tasks
 
+### Local review UI integration (linhuang, 21 Nov)
+
+- User requested connecting the existing TraceSphere UI to the actual screening task.
+- Added standard-library `ui/bridge.py` and synthetic adapter tests. Lane A/B and shared engine files are unchanged.
+- External UI calls `system/run`, displays facts/raw sources, and downloads official predictions. Manual notes stay separate.
+- Gold labels enter only explicit evaluation through the official validator.
+- Practice: 819 lines, 0 format problems, 50/50 right, score 100.0, 0 unsafe clearances.
+- Local adversarial set: 35/44 right, score 75.9, 0 unsafe clearances. V2: 41/44 right, score 92.4, 0 unsafe clearances.
+- These show current rule limitations; this task does not tune the classifier. Repository tests with the adapter: 266 passed.
+- No commit, push, data upload or submission is performed by this local integration.
+
 Plan and times: `brain/roadmap.md`. Edit only your own rows.
 
 | Task | Owner | State |

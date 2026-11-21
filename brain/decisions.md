@@ -2,6 +2,11 @@
 
 Newest first. One line for the choice, one for why.
 
+**21 Nov: Connect the existing external UI to the existing runner using a standard-library subprocess bridge.**
+Reuse actual policy decisions and original source IDs without duplicating the classifier or adding
+Streamlit to the submission engine. The all-REVIEW file is only a baseline. Gold labels never enter
+prediction, and manual annotations are a separate download. Synthetic misses remain visible as a rules follow-up.
+
 **21 Nov: A birth date or age read from free text counts only if it belongs to the listed person (`common.belongs_to`), and a KYC note never takes a document or an expiry date as the person's identity.**
 Reproduced false matches that would have created unsafe clears on unseen wording: "a 25-year-old witness", "his daughter was born on ...", "met 26, Maria Miller", "UNITED KINGDOM PASSPORT" read as a verified name, "expires 2031-06-30" read as a date of birth. Rule: the word an expression attaches to must be the person's name, a pronoun, "the subject" or a policy listing role ("a politically exposed person"); a different noun or name means someone else. A note's earliest date is a birth date only when at least 16 years before the next date (the smallest gap in dev is 17). No dev decision changed: these guard the unseen set.
 
