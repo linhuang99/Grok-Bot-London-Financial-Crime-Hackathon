@@ -10,9 +10,9 @@ alert ─> 1. resolve customer ─> 2. merge into people ─> 3. customer facts 
 hit ───> 4. hit facts ─────────────────────────────────────────────────────┘
 ```
 
-1. **Resolve customer** (`system/link.py`): follow `account_ref`, `login_handle` or `email`. Joint accounts and unlinked alerts give candidates; keep those that fit the screened name, dob (every part both give), country and city.
-2. **Merge into people** (`system/link.py`): same phone + same full dob, or same document number on approved checks, transitively. Several people left: decide the hit for each; same answer for all, give it; otherwise `REVIEW` + `AMBIGUOUS_CUSTOMER_RECORD`. Either way `customer_record_id = "AMBIGUOUS"`.
-3. **Customer facts** (`system/link.py`): legal name, dob and document country from the latest approved check (KYC table or a KYC note); all countries from every record, the document and notes.
+1. **Resolve customer** (`system/link.py`, lane A): follow `account_ref`, `login_handle` or `email`. Joint accounts and unlinked alerts give candidates; keep those that fit the screened name, dob (every part both give), country and city.
+2. **Merge into people** (`system/link.py`, lane A): same phone + same full dob, or same document number on approved checks, transitively. Several people left: decide the hit for each; same answer for all, give it; otherwise `REVIEW` + `AMBIGUOUS_CUSTOMER_RECORD`. Either way `customer_record_id = "AMBIGUOUS"`.
+3. **Customer facts** (`system/customer.py`, free text read by `system/notes.py`, lane A): legal name, dob and document country from the latest approved check (KYC table or a KYC note); all countries from every record, the document and notes.
 4. **Hit facts** (`system/hitfacts.py`): names and aliases; possible birth years and dates from `dobs`, profile notes, then filtered search results; countries; earliest dated report; date of death.
 5. **Compare** (`system/names.py` for names): name agreement per principle 8 of the policy, dob agreement or contradiction, country overlap, entity type.
 6. **Decide** (`system/decide.py`): contradictions first (time, dob, location, name, type, deceased) give `DIFFERENT_ENTITY`; then agreement (person: name + dob; company: name + country) gives `SAME_ENTITY`; otherwise `REVIEW`. A country difference never clears a hit whose name and dob agree.
@@ -29,21 +29,42 @@ Fact = {"value": ..., "source": "KYC-00030A"}   # hit fields cite "H-XXXXXX#fiel
 PartialDate = (year, month_or_None, day_or_None)
 ```
 
-`system/common.py` (lane B)
+`system/common.py` (lane A owns it; Lane B's functions keep their behaviour)
 
 ```python
-parse_date(text) -> PartialDate | None    # every format in brain/data-model.md; None if unparseable
-country_name(text) -> str | None          # "GB" or "United Kingdom" -> "United Kingdom"; None for "International", "Europe"
+fold(text) -> str                         # casefold, accents removed
+parse_date(text) -> PartialDate | None    # one whole date string; None if invalid or the year is outside 1800-2100
+dates_agree(a, b) -> bool                 # equal in every part both give: (1990, None, None) agrees with (1990, 5, 4)
+country_name(text) -> str | None          # code / name / nationality -> canonical name; None for regions, placeholders ("NA") AND unknown values
+country_at_end(text) -> str | None        # country at the end of an address or place ("Belgrade, Serbia")
+countries_in_text(text) -> set            # full country names and nationalities found in prose
+search_query(name) -> str                 # key for search_results.query (see the proposed fix in brain/status.md)
 ```
 
-`system/data.py` (lane A)
+**Never rule out a match on location using an unrecognised country**: dropping it can invent a mismatch and clear a real match. `country_name` returns `None` for both regions and unknown values today; see the proposed fix in `brain/status.md`.
+
+`system/data.py` (lane A, done)
 
 ```python
-load(data_dir) -> Data   # dict with the raw tables plus indexes:
-# customers_by_id, customers_by_email, accounts_by_id (list: joint accounts), accounts_by_login (list),
-# applicant_by_account_customer, kyc_by_applicant (list), notes_by_email (list),
-# search_by_query (list), hits_by_id, name_variants
+load(data_dir) -> dict   # raises DataError only if alerts.jsonl or hits.jsonl is missing
+# Tables by file name: alerts (file order), hits, customers, accounts, onboarding, kyc_checks, notes, search_results
+# Indexes (lists where one key can match several rows, in file order):
+#   hits_by_id, customers_by_id                      id -> row
+#   customers_by_email, notes_by_email               email -> [rows]          (case-insensitive)
+#   accounts_by_id                                   account -> [rows]        (joint accounts: one row per holder)
+#   accounts_by_login                                login -> [rows]          (case-insensitive)
+#   accounts_by_customer                             customer -> [rows]
+#   applicant_by_account_customer                    (account, customer) -> applicant
+#   kyc_by_applicant                                 applicant -> [checks]    (not sorted by date: A4 picks the latest)
+#   search_by_query                                  normalised query -> [results]
+# name_variants = {"groups": [...], "company_legal_forms": [...]}
+# warnings = [str]   skipped lines, repeated IDs, missing optional files (also printed to stderr)
+id_key(value), text_key(value)       # the lookup keys: trimmed; text_key also lowercase; blank -> None
+search_keys(name) -> [str]           # every possible query key: initials dropped, accents removed, sorted words
+find_search_results(data, name)      # results under any key of the name: finds all 702 individual hits in dev
 ```
+
+Look up with `id_key` / `text_key`, never with raw values. Records keep their original values for evidence.
 
 `system/names.py` (lane B)
 
@@ -51,20 +72,42 @@ load(data_dir) -> Data   # dict with the raw tables plus indexes:
 names_agree(name_a, name_b, variants) -> bool   # dev/POLICY.md principle 8
 ```
 
-`system/link.py` (lane A)
+`system/link.py` (lane A, A3 done for linked alerts)
 
 ```python
-resolve(alert, data) -> list[Person]   # [] = not found, 1 = resolved, >1 = several people fit
+resolve(alert, data) -> list[list[str]]   # people: each a list of customer record IDs; [] = not found
+fits_screened(alert, record, data) -> bool  # principle 2 fit: name, dob, country, city; unknown never rules out
+```
+
+**How `system/run` uses Lane A** (contract for the runner):
+
+```python
+data = data.load(folder)                  # once
+people = link.resolve(alert, data)        # per alert
+# until A4: customer_record_id = people[0][0] if len(people) == 1 else ("AMBIGUOUS" if people else None)
+# from A4:  persons = [customer.person(record_ids, data) for record_ids in people]   -> Person below
+```
+
+`customer.person(record_ids, data)` (A4, done) builds:
+
+```python
 Person = {
     "record_ids": ["CUS-..."],            # all records of this person
     "record_id": "CUS-...",               # the one to output
     "entity_type": "Individual" | "Company",
-    "verified_name": Fact | None,         # latest approved check
-    "names": [Fact],                      # verified first, then record, preferred and login names
-    "dob": Fact | None,                   # value is a PartialDate; verified beats declared
-    "countries": [Fact],                  # residence, nationality, document country, places in notes
+    "verified_name": Fact | None,         # latest APPROVED check (rejected/expired never count)
+    "legal_name": Fact,                   # verified_name if any, else the record's full name (CUS source)
+    "names": [Fact],                      # legal name first, then every record name, no repeats
+    "dob": Fact | None,                   # verified if readable, else declared; companies: incorporation date
+    "countries": [Fact],                  # residence + nationality of every record, document country of every approved check
+    "unreadable_countries": [Fact],       # non-empty values we could not read as a country (incl. "NA")
 }
 ```
+
+**Rules for `decide.py` when using a Person:**
+- Compare the hit's names with `legal_name`. Clear on `NAME_MISMATCH_VERIFIED` only when `verified_name` is not `None`.
+- **Never clear on `LOCATION_MISMATCH` while `unreadable_countries` is not empty**: an unreadable value might be the matching country.
+- A fact's `source` is the evidence ID to cite (`CUS-...` or `KYC-...`), as the practice labels do.
 
 `system/hitfacts.py` (lane B)
 
@@ -119,3 +162,11 @@ See [LANE_B_README.md](../system/LANE_B_README.md) for the complete teammate-fac
 `common.field_is_complete(facts, field)` rejects legacy/unknown versions, malformed metadata, missing/partial/unparsed fields and blocking issues. It is a parsing gate, not a decision. Both sides need equivalent completeness handling; unresolved unrelated fields do not globally veto independent sufficient contradictions. Positive confirmation must still exclude possible identity-relevant contradictions. Missing quality on old Person dictionaries must not be silently upgraded to PARSED.
 
 Lane A code, the shared runner and final decision code were not changed. Teammate acceptance of this V1 contract and consumer-side tests remain required before end-to-end integration.
+
+## Cross-lane compatibility on laneB
+
+The user authorised importing main into laneB and resolving conflicts. Shared helpers remain owned by Lane A: keep `dates_agree`, placeholder-country handling and 1800-2100 bounds. Lane B's search extraction now imports `data.search_keys`; raw candidates remain available for duplicate-source conflict checks, and raw query validation uses equivalent normalised keys.
+
+`quality.adapt_person(person, complete_fields=())` is a Lane B bridge, not a replacement for `customer.person`. It copies existing fields, preserves `unreadable_countries`, adds a `births` alias from readable `dob`, and emits V1 diagnostics. It never infers upstream coverage from an empty warning list. Only an explicit producer/caller attestation can mark coverage complete; validation failures still block the gate. Existing versioned metadata is not silently upgraded. See [Lane B README](../system/LANE_B_README.md) for an example.
+
+Unsupported name scripts are preserved with blocking name issues until shared transliteration exists. No final identity decision is inferred from parser quality, and the shared runner/decision integration remains pending.

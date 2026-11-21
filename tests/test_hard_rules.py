@@ -20,7 +20,7 @@ sys.path.insert(0, str(SYSTEM))
 from hitfacts import hit_facts
 from common import parse_date
 
-LANE_B = ('common.py', 'names.py', 'hitfacts.py')
+LANE_B = ('common.py', 'names.py', 'hitfacts.py', 'quality.py')
 
 
 class HardRules(unittest.TestCase):

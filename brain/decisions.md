@@ -2,9 +2,35 @@
 
 Newest first. One line for the choice, one for why.
 
-**21 Nov: Add field-specific V1 quality and issue metadata without replacing existing facts.**
-The user approved the interface extension. Distinguish absence from parse failure, preserve usable facts and provenance, and fail closed when full-set comparisons would otherwise discard unknown alternatives. Do not infer conflicts solely from multiple allowed birthdays. Add source-ID conflict detection and consumer-side parsing gates; final decisions remain in policy code.
+**21 Nov: Integrate main into laneB and bridge the existing customer contract instead of overwriting it.**
+User authorised conflict repair on laneB. Preserve Lane A shared helpers and producer code; share search normalisation while retaining duplicate-source conflict checks. A separate Lane B adapter adds conservative V1 quality with explicit upstream-coverage attestation. Unreadable scripts block name clears until transliteration is available.
 
+**21 Nov: Keep V1 quality additive and fail closed.**
+Missing, partial and unparsed fields do not support full-set contradictions. Legacy Person metadata is not automatically complete, and the comparison layer still decides according to the SOP.
+
+
+**21 Nov: Customer facts live in `system/customer.py`, not `profile.py`.**
+Python's standard library has a `profile` module; ours would hide it (and break `cProfile`) depending on import order.
+
+**21 Nov: Every approved check's document country counts, not only the latest one's.**
+More countries can only remove location mismatches, so a wrong call costs at most a REVIEW. In dev the document country is always already one of the record's countries.
+
+**21 Nov: The decision compares the customer's `legal_name` and clears on name only when `verified_name` exists.**
+The verified name outranks the record and screened names (principle 4); 38 dev customers have a record name that the verified name overrules entirely.
+
+**21 Nov: A link that leads to no customer is treated as no link (searched by screened details in A6); a joint account where no holder fits gives nobody (REVIEW).**
+The policy's "without a link, find the records that fit" covers a dead link. A joint account where nobody fits is not covered; nobody found costs at most a REVIEW. Neither case occurs in dev.
+
+**21 Nov: A single linked record is the customer, even if the screened details differ; the screened details only choose between several linked records.**
+Principle 2 uses the screened details to pick between the people a link leads to. In dev every single-record link fits anyway (236 of 236).
+
+**21 Nov: `common.py` has one owner, Lane A; Lane B no longer edits it.**
+Both lanes wrote date and country helpers in parallel and collided. Lane B's version was merged first and its modules depend on it, so it stays; Lane A owns it from now on and only adds to it, keeping every function Lane B uses (and `tests/test_lane_b.py`) unchanged. Lane B asks for changes in `brain/status.md`.
+
+**21 Nov: Lanes: garyyehhh owns Lane A (customer side: `common.py`, `data.py`, `link.py`, `notes.py`, `customer.py`), linhuang owns Lane B (hit side: `names.py`, `hitfacts.py`).**
+
+**21 Nov: An unrecognised or ambiguous country value never supports a location clear.**
+A wrong guess ("Korea" as South Korea, "NA" as Namibia) can invent a location mismatch and clear a real match, costing 60; leaving it unknown only costs a `REVIEW`.
 
 **21 Nov: Missing hit type stays unknown; output ordering and English month parsing are explicit.**
 Avoid unsupported assumptions and environment-dependent extraction. Add standard-library-only regression guardrails; keep final identity decisions pending shared pipeline integration.

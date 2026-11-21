@@ -10,7 +10,8 @@ Lane A resolves the customer; Lane B resolves the watchlist profile. Both pass f
 
 | File | Responsibility |
 |---|---|
-| `common.py` | Partial-date parsing, country normalisation, `country_parse_status`, `field_is_complete` |
+| `common.py` (Lane A owns shared helpers) | Preserve `dates_agree`, year bounds and placeholders; additive V1 parsing gates remain available |
+| `quality.py` (Lane B) | Conservative `adapt_person` bridge; does not alter Lane A producer code |
 | `countries.json` | Bundled public code/name vocabulary; territories stay distinct; no participant records |
 | `names.py` | Policy rule 8; individual and company helpers; no identity decisions |
 | `hitfacts.py` | Names, birthdays/incorporation dates, countries, dated reports, death, provenance and parse-quality metadata |
@@ -125,7 +126,23 @@ if not field_is_complete(facts, "countries"):
 
 An issue is field-specific. An unreadable country does not by itself invalidate an independent, fully supported birthday contradiction. Conversely, a positive match must not ignore unresolved facts that could hide a contradiction. When the remaining evidence cannot settle identity, REVIEW.
 
-Lane A currently returns its existing Person dictionary. It must adopt equivalent V1 metadata, or have the shared comparison layer explicitly validate completeness. Do not simply label every Lane A field PARSED. Legacy objects passed to `field_is_complete` intentionally fail closed. The current all-REVIEW runner does not consume this contract yet.
+Lane A returns its existing Person dictionary, including `unreadable_countries`. `quality.adapt_person` is the compatibility bridge; it does not modify that dictionary or its producer. It preserves original fields and adds `births` as an alias for the readable `dob` fact. Existing versioned quality is preserved, not upgraded. Legacy objects passed directly to `field_is_complete` intentionally fail closed.
+
+```python
+from quality import adapt_person
+from common import field_is_complete
+
+customer_facts = adapt_person(person)  # default: upstream coverage UNKNOWN
+# Do NOT declare completeness just because unreadable_countries is empty.
+# Only after the producer/caller has completed that field's investigation:
+customer_facts = adapt_person(person, complete_fields=("countries",))
+can_compare_all_countries = (
+    field_is_complete(customer_facts, "countries")
+    and field_is_complete(hit_facts_result, "countries")
+)
+```
+
+`complete_fields` may contain `names`, `births`, `countries`, `entity_type`. It attests investigation coverage, not identity or evidence truth. It cannot bypass invalid facts, missing source IDs, unreadable countries or unreadable name scripts. Default coverage issues block all affected gates; an empty warning list is not proof that every account, KYC check and note was considered. Do not claim A4 alone completes later A5-A7 work. The current all-REVIEW runner does not call the decision pipeline or this bridge yet.
 
 ## 6. Alternatives, conflicts and skipped sources
 
@@ -133,8 +150,9 @@ Lane A currently returns its existing Person dictionary. It must adopt equivalen
 - An age at a date gives two possible birth years, without invented month/day. Guard every alternative before clearing on DOB mismatch.
 - A duplicate search `result_id` with differing content is an unresolved source conflict: skip that result and emit blocking `UNRESOLVED_SOURCE_CONFLICT` for births. Identical duplicates do not duplicate facts.
 - Other genuine conflicts should use the same issue shape and set `blocking=True` for the affected field. Do not invent a preferred fact to suppress a conflict.
+- Non-Latin name scripts that `fold` cannot transliterate remain in facts and produce blocking `UNREADABLE_NAME_SCRIPT`; they cannot justify a name-mismatch clearance. This revision adds no transliteration table.
 - Birth source order is structured `dobs`, first profile paragraph, then supplied search results. Companies use only structured `dobs` for incorporation.
-- Search birth results require a matching query, policy listing phrase and a country tied to the hit. Namesakes that fail these filters contribute no birth facts.
+- Search birth results use Lane A `data.search_keys` for initials, accents and alternate spellings. Raw row queries are validated with that same normalisation, not raw string equality. A policy listing phrase and tied country are still required. Raw indexed rows remain visible to Lane B conflict detection; first-row deduplication must not hide a conflicting source ID.
 - `data["search_by_query"] = {}` means an available index with no matching results. An omitted index means search was not performed: `SEARCH_NOT_PROVIDED`, not proof that no birthday exists.
 - Report dates count only in the exact policy-defined English report-line format. Other wordings are outside this extraction rule. Invalid dates within the exact format are reported as unparsed, and can prevent a trustworthy earliest-date comparison.
 
@@ -162,3 +180,7 @@ python3 -m unittest discover tests
 ```
 
 `output/dev.jsonl` must be generated by `system/run`, never edited by hand. Do not commit `dev/`, `validate.py`, credentials or private raw diagnostics. Unit tests validate the contract; an all-REVIEW score of zero is not proof of end-to-end identity accuracy. Final architecture/runtime/cost documentation remains a separate deliverable.
+
+## 9. Cross-lane regression checks
+
+`tests/test_lane_compatibility.py` covers the retained Lane A imports/guards, initials and alternate-spelling search lookups, conflicting source IDs, unsupported scripts and the legacy-Person bridge. Run the full suite from repository root, not just Lane B tests. Main has been imported into laneB for compatibility; this does not merge laneB into main.

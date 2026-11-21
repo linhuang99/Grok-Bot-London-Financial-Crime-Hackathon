@@ -3,7 +3,8 @@
 No decisions, network calls, practice answers or inferred missing date parts.
 """
 import re
-from common import parse_date, country_parse_status, countries_in_text, search_query
+from common import parse_date, country_parse_status, countries_in_text, fold
+from data import search_keys
 from names import name_parts
 
 _FIELDS = ('names', 'births', 'countries', 'earliest_report', 'death', 'entity_type')
@@ -121,6 +122,10 @@ def _names(hit, q):
         else:
             q.ignore('names')
     add(hit.get('best_matching_name'), 'best_matching_name')
+    for value, source_ids in sources.items():
+        if any(c.isalpha() and not c.isascii() for c in fold(value)):
+            for source in sorted(source_ids):
+                q.bad('names', 'UNREADABLE_NAME_SCRIPT', source, source.split('#')[-1])
     ordered = sorted(sources, key=lambda n: (n.casefold(), n))
     return ordered, {name: sorted(sources[name]) for name in ordered}
 
@@ -167,17 +172,18 @@ def _search_births(hit, data, names, countries, q):
     tied = {f['value'] for f in countries}
     rows = {}
     for name in names:
-        query = search_query(name)
-        results = index.get(query, [])
-        if not isinstance(results, list):
-            q.bad('births', 'INVALID_SEARCH_RESULTS', hid, 'search_by_query'); continue
-        for row in results:
-            if not isinstance(row, dict) or (not isinstance(row.get('result_id'), str) or not row['result_id'].strip()):
-                q.bad('births', 'INVALID_SEARCH_RESULT', hid, 'search_by_query'); continue
-            # Do not trust a row assigned to the wrong index bucket.
-            if row.get('query') is not None and row['query'] != query:
-                q.bad('births', 'SEARCH_QUERY_MISMATCH', row['result_id'], 'query'); continue
-            rows.setdefault(row['result_id'], []).append(row)
+        # Share Lane A's normalisation, but inspect all rows ourselves so a
+        # conflicting duplicate source ID cannot be hidden by deduplication.
+        for query in sorted(set(search_keys(name))):
+            results = index.get(query, [])
+            if not isinstance(results, list):
+                q.bad('births', 'INVALID_SEARCH_RESULTS', hid, 'search_by_query'); continue
+            for row in results:
+                if not isinstance(row, dict) or (not isinstance(row.get('result_id'), str) or not row['result_id'].strip()):
+                    q.bad('births', 'INVALID_SEARCH_RESULT', hid, 'search_by_query'); continue
+                if row.get('query') is not None and query not in search_keys(row['query']):
+                    q.bad('births', 'SEARCH_QUERY_MISMATCH', row['result_id'], 'query'); continue
+                rows.setdefault(row['result_id'], []).append(row)
     found = []
     for rid, versions in sorted(rows.items()):
         row = versions[0]
