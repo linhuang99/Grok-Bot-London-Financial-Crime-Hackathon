@@ -1,0 +1,13 @@
+{"account_id": "ACC-SYN-1-01-1", "customer_id": "CUS-710011", "login_handle": "login-g1-c01-r1", "opened_at": "2020-01-01", "phone": "+990001001001", "status": "active"}
+{"account_id": "ACC-SYN-1-02-1", "customer_id": "CUS-710021", "login_handle": "login-g1-c02-r1", "opened_at": "2020-01-01", "phone": "+990001002001", "status": "active"}
+{"account_id": "ACC-SYN-1-03-1", "customer_id": "CUS-710031", "login_handle": "login-g1-c03-r1", "opened_at": "2020-01-01", "phone": "+990001003001", "status": "active"}
+{"account_id": "ACC-SYN-1-04-1", "customer_id": "CUS-710041", "login_handle": "login-g1-c04-r1", "opened_at": "2020-01-01", "phone": "+990001004001", "status": "active"}
+{"account_id": "ACC-SYN-1-05-1", "customer_id": "CUS-710051", "login_handle": "login-g1-c05-r1", "opened_at": "2020-01-01", "phone": "+990001005001", "status": "active"}
+{"account_id": "ACC-SYN-1-06-1", "customer_id": "CUS-710061", "login_handle": "login-g1-c06-r1", "opened_at": "2020-01-01", "phone": "+990001006001", "status": "active"}
+{"account_id": "ACC-SYN-1-07-1", "customer_id": "CUS-710071", "login_handle": "login-g1-c07-r1", "opened_at": "2020-01-01", "phone": "+990001007001", "status": "active"}
+{"account_id": "ACC-SYN-1-08-1", "customer_id": "CUS-710081", "login_handle": "login-g1-c08-r1", "opened_at": "2020-01-01", "phone": "+990001008001", "status": "active"}
+{"account_id": "ACC-SYN-1-09-1", "customer_id": "CUS-710091", "login_handle": "login-g1-c09-r1", "opened_at": "2020-01-01", "phone": "+990001009001", "status": "active"}
+{"account_id": "ACC-SYN-1-10-1", "customer_id": "CUS-710101", "login_handle": "login-g1-c10-r1", "opened_at": "2020-01-01", "phone": "+990001010001", "status": "active"}
+{"account_id": "ACC-SYN-1-11-1", "customer_id": "CUS-710111", "login_handle": "login-g1-c11-r1", "opened_at": "2020-01-01", "phone": "+990001011001", "status": "active"}
+{"account_id": "ACC-SYN-1-12-1", "customer_id": "CUS-710121", "login_handle": "login-g1-c12-r1", "opened_at": "2020-01-01", "phone": "+990001012001", "status": "active"}
+{"account_id": "ACC-SYN-1-13-1", "customer_id": "CUS-710131", "login_handle": "login-g1-c13-r1", "opened_at": "2020-01-01", "phone": "+990001013001", "status": "active"}

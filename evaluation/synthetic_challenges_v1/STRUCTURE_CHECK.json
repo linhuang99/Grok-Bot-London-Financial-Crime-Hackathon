@@ -1,0 +1,50 @@
+{
+  "synthetic": true,
+  "total_cases": 52,
+  "groups": [
+    {
+      "group": 1,
+      "cases": 13,
+      "policy_gold_counts": {
+        "DIFFERENT_ENTITY": 5,
+        "SAME_ENTITY": 4,
+        "REVIEW": 4
+      },
+      "schema_problems": 0
+    },
+    {
+      "group": 2,
+      "cases": 13,
+      "policy_gold_counts": {
+        "DIFFERENT_ENTITY": 5,
+        "SAME_ENTITY": 4,
+        "REVIEW": 4
+      },
+      "schema_problems": 0
+    },
+    {
+      "group": 3,
+      "cases": 13,
+      "policy_gold_counts": {
+        "DIFFERENT_ENTITY": 5,
+        "SAME_ENTITY": 4,
+        "REVIEW": 4
+      },
+      "schema_problems": 0
+    },
+    {
+      "group": 4,
+      "cases": 13,
+      "policy_gold_counts": {
+        "DIFFERENT_ENTITY": 5,
+        "SAME_ENTITY": 4,
+        "REVIEW": 4
+      },
+      "schema_problems": 0
+    }
+  ],
+  "solver_executed": false,
+  "gold_status": "policy-derived; independent human review recommended",
+  "schema_validation_only": true,
+  "repository_head_at_creation": "d50e8a432e87c55a19b01a8c8a36377b4234ae6c"
+}

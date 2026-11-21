@@ -1,0 +1,28 @@
+{
+  "description": "Synthetic vocabulary for policy challenge cases only. No participant records.",
+  "groups": [
+    [
+      "anthony",
+      "tony"
+    ],
+    [
+      "robert",
+      "bob"
+    ],
+    [
+      "mohammed",
+      "muhammad"
+    ]
+  ],
+  "company_legal_forms": [
+    "ltd",
+    "limited",
+    "ab",
+    "ag",
+    "gmbh",
+    "sa",
+    "inc",
+    "llc",
+    "plc"
+  ]
+}
