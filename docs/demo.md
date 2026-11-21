@@ -2,7 +2,7 @@
 
 **Team ucl compsci newbies:** Lin Huang, Gary Yeh.
 
-**Slide deck:** https://claude.ai/artifact/CXxBeVy43Q7brboKVysnba (4 slides with speaker notes; Share it from its page, or export it as PDF or PowerPoint, before sending the link).
+**Slide deck:** [`docs/same-person-or-not-deck.pptx`](same-person-or-not-deck.pptx), 4 slides with the narration as speaker notes; opens in PowerPoint, Keynote or Google Slides.
 
 The video is 2 minutes: four slides plus live screen recordings of the system.
 
