@@ -9,6 +9,7 @@ Update this when you claim or finish a task, or when the score changes.
 | 21 Nov, latest Hard rules check | 0.0 | 0 | 819 lines, 0 format problems; runner still all REVIEW; 32 unit tests pass |
 | 21 Nov, 14:20 (A2) | 0.0 | 0 | 819 lines, 0 problems; runner still all REVIEW; 68 unit tests pass |
 | 21 Nov, 14:35 (common.py fixes) | 0.0 | 0 | 79 unit tests pass |
+| 21 Nov, 14:15 (A3) | 0.0 | 0 | `link.resolve` finds the accepted customer for 38/38 linked practice labels; not yet called by `run`; 102 unit tests pass |
 
 ## Tasks
 
@@ -17,7 +18,7 @@ Plan and times: `brain/roadmap.md`. Edit only your own rows.
 | Task | Owner | State |
 |---|---|---|
 | Repo scaffold, `brain/`, agent instructions, roadmap | garyyehhh | done |
-| **Lane A** (customer side): checkpoints A2-A7 in `brain/roadmap.md` | garyyehhh | A2 done, A3 next |
+| **Lane A** (customer side): checkpoints A2-A7 in `brain/roadmap.md` | garyyehhh | A3 done, A4 next |
 | `common.py` (dates, countries) | garyyehhh (from linhuang) | Done; fixes 2 and 4 below done, 3 and 5 pending |
 | `names.py` (principle 8, with tests) | linhuang | First implementation and unit tests complete; integration pending |
 | `hitfacts.py` (names, dobs, countries, reports, death) | linhuang | First implementation and unit tests complete; integration pending |

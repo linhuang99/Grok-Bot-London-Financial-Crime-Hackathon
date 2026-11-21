@@ -31,8 +31,8 @@ Small steps, each finished before the next starts. Done means: unit tests pass, 
 |---|---|---|---|
 | A1 | Dates and countries | Lane B's `common.py` | superseded: Lane B's version adopted; Lane A's findings are proposed fixes in `brain/status.md` |
 | A2 | Load and index every file | `data.py` | done |
-| A3 | Linked alerts: account, login, email; pick the joint holder that fits; record-resolution scorecard against the practice labels | `link.py` | next |
-| A4 | Person facts from records and approved KYC table checks | `profile.py` | |
+| A3 | Linked alerts: account, login, email; pick the joint holder that fits; record-resolution scorecard against the practice labels | `link.py` | done: 38/38 linked labels |
+| A4 | Person facts from records and approved KYC table checks | `profile.py` | next |
 | A5 | KYC notes and residence notes into facts | `notes.py` | |
 | A6 | Unlinked alerts: search by the screened details | `link.py` | |
 | A7 | Merge records into people (phone + dob, document number) | `link.py` | |

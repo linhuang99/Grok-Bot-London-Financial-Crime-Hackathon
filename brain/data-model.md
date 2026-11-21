@@ -50,6 +50,12 @@ customers.email ──> notes.requester_email
 - The phone on an account always equals the customer's phone, so `customers.phone` is the one source.
 - Every company customer has a `dob`: it is the incorporation date. 30 individuals have no `dob`.
 
+## Links (checked during A3)
+
+- 294 alerts carry a link (170 account, 70 login, 54 email), never more than one kind per alert; every link leads to a customer.
+- 236 links lead to one record, and that record always fits the screened details. 58 alerts link to a joint account; in every one exactly one holder fits.
+- Practice labels cite `CUS`, `KYC`, `NOTE` and `SR` IDs as evidence, never account or applicant IDs.
+
 ## Accounts and KYC
 
 - **52 accounts have two holders** (joint accounts), one row per holder. Never assume one customer per account; pick the holder that fits the screened details.

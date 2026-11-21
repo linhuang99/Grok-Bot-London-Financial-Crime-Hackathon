@@ -2,6 +2,12 @@
 
 Newest first. One line for the choice, one for why.
 
+**21 Nov: A link that leads to no customer is treated as no link (searched by screened details in A6); a joint account where no holder fits gives nobody (REVIEW).**
+The policy's "without a link, find the records that fit" covers a dead link. A joint account where nobody fits is not covered; nobody found costs at most a REVIEW. Neither case occurs in dev.
+
+**21 Nov: A single linked record is the customer, even if the screened details differ; the screened details only choose between several linked records.**
+Principle 2 uses the screened details to pick between the people a link leads to. In dev every single-record link fits anyway (236 of 236).
+
 **21 Nov: `common.py` has one owner, Lane A; Lane B no longer edits it.**
 Both lanes wrote date and country helpers in parallel and collided. Lane B's version was merged first and its modules depend on it, so it stays; Lane A owns it from now on and only adds to it, keeping every function Lane B uses (and `tests/test_lane_b.py`) unchanged. Lane B asks for changes in `brain/status.md`.
 

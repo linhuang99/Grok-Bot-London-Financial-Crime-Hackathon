@@ -72,10 +72,25 @@ Look up with `id_key` / `text_key`, never with raw values. Records keep their or
 names_agree(name_a, name_b, variants) -> bool   # dev/POLICY.md principle 8
 ```
 
-`system/link.py` (lane A)
+`system/link.py` (lane A, A3 done for linked alerts)
 
 ```python
-resolve(alert, data) -> list[Person]   # [] = not found, 1 = resolved, >1 = several people fit
+resolve(alert, data) -> list[list[str]]   # people: each a list of customer record IDs; [] = not found
+fits_screened(alert, record, data) -> bool  # principle 2 fit: name, dob, country, city; unknown never rules out
+```
+
+**How `system/run` uses Lane A** (contract for the runner):
+
+```python
+data = data.load(folder)                  # once
+people = link.resolve(alert, data)        # per alert
+# until A4: customer_record_id = people[0][0] if len(people) == 1 else ("AMBIGUOUS" if people else None)
+# from A4:  persons = [profile.person(record_ids, data) for record_ids in people]   -> Person below
+```
+
+`profile.person` (A4) builds:
+
+```python
 Person = {
     "record_ids": ["CUS-..."],            # all records of this person
     "record_id": "CUS-...",               # the one to output

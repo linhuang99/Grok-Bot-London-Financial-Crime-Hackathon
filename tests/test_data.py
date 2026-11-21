@@ -236,7 +236,7 @@ class SearchKeys(FolderTest):
 
 class HardRules(unittest.TestCase):
     """The AGENTS.md rules, applied to Lane A's modules."""
-    LANE_A = ("data.py",)
+    LANE_A = ("common.py", "data.py", "link.py")
 
     def test_no_clock_randomness_network_or_literal_ids(self):
         for filename in self.LANE_A:

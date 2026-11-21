@@ -14,6 +14,8 @@ sys.path.insert(0, os.path.join(ROOT, "system"))
 
 from common import country_at_end, country_name, parse_date  # noqa: E402
 from data import find_search_results, id_key, load, text_key  # noqa: E402
+from link import linked_records, resolve  # noqa: E402
+import json  # noqa: E402
 
 DEV = os.path.join(ROOT, "dev")
 
@@ -79,6 +81,35 @@ class DevData(unittest.TestCase):
                     if country_at_end(item) is None:
                         unknown.add(item)
         self.assertEqual(sorted(u for u in unknown if "International" not in u and "Europe" not in u), [])
+
+    def resolve_all(self):
+        with contextlib.redirect_stderr(io.StringIO()):
+            return {a["alert_id"]: resolve(a, self.data) for a in self.data["alerts"]}
+
+    def test_every_linked_alert_resolves_to_exactly_one_person(self):
+        people = self.resolve_all()
+        linked = [a for a in self.data["alerts"] if linked_records(a, self.data)]
+        self.assertEqual(len(linked), 294)
+        self.assertEqual([a["alert_id"] for a in linked if len(people[a["alert_id"]]) != 1], [])
+
+    def test_every_joint_account_alert_picks_one_holder(self):
+        people = self.resolve_all()
+        joint = [a for a in self.data["alerts"] if len(linked_records(a, self.data)) > 1]
+        self.assertEqual(len(joint), 58)
+        self.assertEqual([a["alert_id"] for a in joint if len(people[a["alert_id"]]) != 1], [])
+
+    def test_scorecard_linked_practice_labels_resolve_to_an_accepted_record(self):
+        # Practice labels are read by this test only, never by the system.
+        people = self.resolve_all()
+        alerts = {a["alert_id"]: a for a in self.data["alerts"]}
+        with open(os.path.join(DEV, "practice_labels.jsonl"), encoding="utf-8") as f:
+            labels = [json.loads(line) for line in f]
+        linked = [x for x in labels if linked_records(alerts[x["alert_id"]], self.data)]
+        wrong = [x["hit_id"] for x in linked
+                 if not any(r in x["customer_record_ids"] for person in people[x["alert_id"]] for r in person)
+                 or len(people[x["alert_id"]]) != 1]
+        self.assertEqual(len(linked), 38)
+        self.assertEqual(wrong, [])
 
 
 if __name__ == "__main__":
