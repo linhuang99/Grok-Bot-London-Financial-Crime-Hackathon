@@ -57,7 +57,9 @@ def hit_facts(hit, data):
     for name in [hit.get('name'), *_items(hit.get('aliases')), combined, hit.get('best_matching_name')]:
         if isinstance(name, str) and name.strip() and name.strip() not in names:
             names.append(name.strip())
-    entity_type = hit.get('entity_type') or 'Individual'
+    # Missing type remains unknown; never silently assume a person.
+    entity_type = hit.get('entity_type') or None
+    names = sorted(names, key=lambda n: (n.casefold(), n))
     births = []
     for value in _items(hit.get('dobs')):
         parsed = parse_date(value)
@@ -77,7 +79,7 @@ def hit_facts(hit, data):
     reports = [d for d in reports if d]
     earliest = _fact(min(reports), hid + '#profile_notes') if reports else None
     death = parse_date(hit.get('deceased_date'))
-    if not births and entity_type != 'Company':
+    if not births and entity_type == 'Individual':
         first = re.split(r'\n\s*\n', notes.strip(), maxsplit=1)[0]
         # Report paragraphs describe events, not the provider's biographical lead.
         first = re.split(r'(?m)^According to ', first, maxsplit=1)[0]

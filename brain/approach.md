@@ -72,7 +72,7 @@ Person = {
 hit_facts(hit, data) -> HitFacts
 HitFacts = {
     "hit_id": "H-...",
-    "entity_type": "Individual" | "Company",
+    "entity_type": "Individual" | "Company" | None,  # unknown stays unknown
     "names": [str],                       # name, aliases, first/middle/last combinations
     "births": [Fact],                     # every possible birth date (an age at a date gives two years)
     "countries": [Fact],
@@ -93,8 +93,14 @@ See `brain/roadmap.md` for lanes and `brain/status.md` for who holds what right 
 
 ## Lane B implementation notes
 
-The agreed `parse_date`, `country_name`, `names_agree`, and `hit_facts` interfaces above remain unchanged. All imports use only Python's standard library. `countries.json` is a bundled code/name table seeded from public-domain tzdata, not participant data.
+The agreed function signatures remain unchanged; the missing-type behaviour of `HitFacts.entity_type` is clarified below. All imports use only Python's standard library. `countries.json` is a bundled code/name table seeded from public-domain tzdata, not participant data.
 
 Additional helpers: `company_names_agree(a,b,variants)` removes corporate legal forms; `usable_individual_name(name)` implements the two-real-parts customer gate. Keep personal and company matching separate. `names_agree` alone is NOT a complete identity decision, and a valid single-part hit alias is not the same as a sufficient customer name.
 
 Unknown country strings return None, and unknown dates remain unknown. Consumers must not interpret missing or unparsed evidence as a contradiction. No model/API calls or practice-label reads occur in Lane B modules. The caller provides `search_by_query`; only matching-name queries with the policy's listing phrase and a tied country may supply fallback birth dates. Age-derived years remain alternatives. Every extracted fact carries its supporting record/field ID.
+
+### Unknown values and determinism
+
+If a hit lacks entity type, return `None` rather than defaulting to `Individual`. Downstream comparison must not treat this as a type mismatch or use person-only confirmation rules. Person-only text birth extraction is skipped when type is unknown. Structured dates retain their original evidence.
+
+Names/aliases and evidence facts have stable output ordering. English date parsing uses a fixed English month table, independent of host locale. No model fallback is present. If one is added later it must use only the OpenRouter chat-completions endpoint, `OPENROUTER_API_KEY`, a pinned model and temperature 0, with extraction validation and no model-made identity decisions.

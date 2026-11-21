@@ -2,6 +2,9 @@
 
 Newest first. One line for the choice, one for why.
 
+**21 Nov: Missing hit type stays unknown; output ordering and English month parsing are explicit.**
+Avoid unsupported assumptions and environment-dependent extraction. Add standard-library-only regression guardrails; keep final identity decisions pending shared pipeline integration.
+
 **21 Nov: The official data room replaces the version rebuilt from the browse workbook.**
 The content was the same, but the shapes differ (nested alert `customer`, extra hit name fields, joint accounts), and the unseen set uses the official shapes.
 

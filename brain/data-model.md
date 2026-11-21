@@ -77,3 +77,5 @@ customers.email ──> notes.requester_email
 - Country strings may have trailing bracketed role labels such as `[Associated]` or `[PEP]`; strip the label before exact country normalisation. Address countries are taken from the final comma/semicolon-delimited component. Territories remain distinct.
 - Some profile report dates do not use the exact English `According to ...; Month D, YYYY:` line specified by the policy. These are intentionally excluded from earliest-report extraction.
 - Birth-date source precedence: structured `dobs`, then the first profile paragraph, then supplied search results. Company incorporation dates use only `dobs`.
+
+- Defensive missing-value behaviour is tested on synthetic input: a missing entity type remains unknown. This is not a claim that official dev hits are missing type.

@@ -11,8 +11,11 @@ def fold(text):
                    if not unicodedata.combining(c))
 
 
-MONTHS = {fold(n): i for i in range(1, 13)
-          for n in (calendar.month_name[i], calendar.month_abbr[i])}
+# Provider dates are English; do not depend on the process locale.
+_ENGLISH_MONTHS = ('January', 'February', 'March', 'April', 'May', 'June',
+                   'July', 'August', 'September', 'October', 'November', 'December')
+MONTHS = {fold(n): i for i, month in enumerate(_ENGLISH_MONTHS, 1)
+          for n in (month, month[:3])}
 MONTHS['sept'] = 9
 
 
