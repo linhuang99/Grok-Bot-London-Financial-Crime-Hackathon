@@ -1,0 +1,44 @@
+{"hit_id": "H-AD0001", "category": "5,6: relative age", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD0002", "category": "5,7: subject age", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD0003", "category": "4,6: document issue date", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD0004", "category": "4: note only approval", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD0005", "category": "6: nationality demonym", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD0006", "category": "6: historic residence", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD0007", "category": "8: Arabic alias", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD0008", "category": "8: Cyrillic alias", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD0009", "category": "2: broken account link", "decision": "REVIEW"}
+{"hit_id": "H-AD000A", "category": "2: login link", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD000B", "category": "3: shared phone only", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD000C", "category": "3: merged phone and DOB", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD000D", "category": "4: rejected recent check", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD000E", "category": "4: later approval", "decision": "DIFFERENT_ENTITY"}
+{"hit_id": "H-AD000F", "category": "6: adjacent year tolerance", "decision": "REVIEW"}
+{"hit_id": "H-AD0010", "category": "7: year only agreement", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD0011", "category": "6: one alternative agrees", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD0012", "category": "6: same year month differs", "decision": "DIFFERENT_ENTITY"}
+{"hit_id": "H-AD0013", "category": "6: exact DOB different country", "decision": "REVIEW"}
+{"hit_id": "H-AD0014", "category": "6: country contradiction", "decision": "DIFFERENT_ENTITY"}
+{"hit_id": "H-AD0015", "category": "5: wrong listing search result", "decision": "REVIEW"}
+{"hit_id": "H-AD0016", "category": "5: matching listing search result", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD0017", "category": "5: nonstandard report wording", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD0018", "category": "5,6: exact dated report", "decision": "DIFFERENT_ENTITY"}
+{"hit_id": "H-AD0019", "category": "6: sixteenth birthday boundary", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD001A", "category": "6: day before sixteenth birthday", "decision": "DIFFERENT_ENTITY"}
+{"hit_id": "H-AD001B", "category": "6: future death date", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD001C", "category": "6: death before screening", "decision": "DIFFERENT_ENTITY"}
+{"hit_id": "H-AD001D", "category": "8: bracket punctuation", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD001E", "category": "8: nickname variant", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD001F", "category": "8: single alias", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD0020", "category": "8: placeholder customer name", "decision": "REVIEW"}
+{"hit_id": "H-AD0021", "category": "8: verified name contradiction", "decision": "DIFFERENT_ENTITY"}
+{"hit_id": "H-AD0022", "category": "8: written together", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD0023", "category": "8: one edit four letters", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD0024", "category": "8: short part no fuzzy edit", "decision": "DIFFERENT_ENTITY"}
+{"hit_id": "H-AD0025", "category": "6: missing hit type", "decision": "REVIEW"}
+{"hit_id": "H-AD0026", "category": "6: entity type contradiction", "decision": "DIFFERENT_ENTITY"}
+{"hit_id": "H-AD0027", "category": "5,7,8: company narrative date", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD0028", "category": "5,6: company incorporation report", "decision": "DIFFERENT_ENTITY"}
+{"hit_id": "H-AD0029", "category": "2,3: joint account none", "decision": "REVIEW"}
+{"hit_id": "H-AD002A", "category": "2,3: joint account mixed", "decision": "REVIEW"}
+{"hit_id": "H-AD002B", "category": "2,3: joint account same", "decision": "SAME_ENTITY"}
+{"hit_id": "H-AD002C", "category": "2,3: joint account different", "decision": "DIFFERENT_ENTITY"}
