@@ -2,8 +2,10 @@
 
 Newest first. One line for the choice, one for why.
 
-**21 Nov: Lanes: garyyehhh owns Lane A (customer side: `data.py`, `link.py`, `notes.py`, `profile.py`), linhuang owns Lane B (hit side: `common.py`, `names.py`, `hitfacts.py`).**
-Both lanes wrote date and country helpers in parallel; Lane B's `common.py` was merged first and its modules depend on it, so it stays and Lane A's duplicate was dropped. Lane A proposes fixes to it through `brain/status.md` instead of editing it.
+**21 Nov: `common.py` has one owner, Lane A; Lane B no longer edits it.**
+Both lanes wrote date and country helpers in parallel and collided. Lane B's version was merged first and its modules depend on it, so it stays; Lane A owns it from now on and only adds to it, keeping every function Lane B uses (and `tests/test_lane_b.py`) unchanged. Lane B asks for changes in `brain/status.md`.
+
+**21 Nov: Lanes: garyyehhh owns Lane A (customer side: `common.py`, `data.py`, `link.py`, `notes.py`, `profile.py`), linhuang owns Lane B (hit side: `names.py`, `hitfacts.py`).**
 
 **21 Nov: An unrecognised or ambiguous country value never supports a location clear.**
 A wrong guess ("Korea" as South Korea, "NA" as Namibia) can invent a location mismatch and clear a real match, costing 60; leaving it unknown only costs a `REVIEW`.

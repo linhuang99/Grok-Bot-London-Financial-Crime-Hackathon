@@ -2,8 +2,8 @@
 
 Two lanes that only meet at agreed interfaces (`brain/approach.md`, "Interfaces"). Each person owns their files; touch the other lane's files only after agreeing.
 
-- **Lane A, customer side (garyyehhh):** `system/data.py`, `system/link.py`, `system/notes.py`, `system/profile.py`
-- **Lane B, hit side (linhuang):** `system/common.py`, `system/names.py`, `system/hitfacts.py`
+- **Lane A, customer side (garyyehhh):** `system/common.py`, `system/data.py`, `system/link.py`, `system/notes.py`, `system/profile.py`
+- **Lane B, hit side (linhuang):** `system/names.py`, `system/hitfacts.py`
 - **Shared:** `system/decide.py`, `system/run`, `system/README.md`
 
 ## Where the points are

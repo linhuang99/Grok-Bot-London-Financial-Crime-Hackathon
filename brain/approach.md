@@ -29,12 +29,13 @@ Fact = {"value": ..., "source": "KYC-00030A"}   # hit fields cite "H-XXXXXX#fiel
 PartialDate = (year, month_or_None, day_or_None)
 ```
 
-`system/common.py` (lane B, done)
+`system/common.py` (lane A owns it; Lane B's functions keep their behaviour)
 
 ```python
 fold(text) -> str                         # casefold, accents removed
-parse_date(text) -> PartialDate | None    # one whole date string; None if invalid. Never invents missing parts
-country_name(text) -> str | None          # code / name / nationality -> canonical name; None for regions AND unknown values
+parse_date(text) -> PartialDate | None    # one whole date string; None if invalid or the year is outside 1800-2100
+dates_agree(a, b) -> bool                 # equal in every part both give: (1990, None, None) agrees with (1990, 5, 4)
+country_name(text) -> str | None          # code / name / nationality -> canonical name; None for regions, placeholders ("NA") AND unknown values
 country_at_end(text) -> str | None        # country at the end of an address or place ("Belgrade, Serbia")
 countries_in_text(text) -> set            # full country names and nationalities found in prose
 search_query(name) -> str                 # key for search_results.query (see the proposed fix in brain/status.md)

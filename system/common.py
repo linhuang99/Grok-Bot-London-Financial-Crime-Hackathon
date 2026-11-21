@@ -1,4 +1,9 @@
-"""Policy helpers. Standard library only; no participant data embedded."""
+"""Policy helpers. Standard library only; no participant data embedded.
+
+Owned by Lane A (see brain/roadmap.md). Lane B's code depends on fold,
+parse_date, country_name, country_at_end, countries_in_text and search_query:
+keep their behaviour, and their tests in tests/test_lane_b.py, unchanged.
+"""
 import calendar
 import json
 import re
@@ -17,6 +22,10 @@ _ENGLISH_MONTHS = ('January', 'February', 'March', 'April', 'May', 'June',
 MONTHS = {fold(n): i for i, month in enumerate(_ENGLISH_MONTHS, 1)
           for n in (month, month[:3])}
 MONTHS['sept'] = 9
+
+# Plausible years for birth, incorporation, report and death dates. A typo year
+# ("0099") stays unknown rather than creating a false date-of-birth mismatch.
+MIN_YEAR, MAX_YEAR = 1800, 2100
 
 
 def parse_date(text):
@@ -50,7 +59,7 @@ def parse_date(text):
         y = int(y)
         m = int(m) if m is not None else None
         d = int(d) if d is not None else None
-        if not 1 <= y <= 9999 or (m is None and d is not None):
+        if not MIN_YEAR <= y <= MAX_YEAR or (m is None and d is not None):
             return None
         if m is not None and not 1 <= m <= 12:
             return None
@@ -59,6 +68,15 @@ def parse_date(text):
         return y, m, d
     except (ValueError, TypeError, OverflowError):
         return None
+
+
+def dates_agree(a, b):
+    """True when two parsed dates are equal in every part both give.
+
+    (1990, None, None) agrees with (1990, 5, 4); (1990, 5, None) does not agree
+    with (1990, 6, 1). Unknown stays unknown: a missing part never disagrees.
+    """
+    return all(x is None or y is None or x == y for x, y in zip(a, b))
 
 
 def _country_key(text):
@@ -114,13 +132,18 @@ for _name, _forms in {
         _ALIASES[_country_key(_form)] = _name
 
 
+# Placeholders are not countries. Checked before the code table, so "NA" is not
+# read as Namibia: a placeholder read as a country could invent a location mismatch.
+_PLACEHOLDERS = {_country_key(t) for t in ('NA', 'N/A', 'None', 'Unknown', 'Not known', 'TBC', 'XX', 'Test')}
+
+
 def country_name(text):
-    """Canonical country/territory, or None for regions and unknown values.
+    """Canonical country/territory, or None for regions, placeholders and unknown values.
 
     Exact lookup, not substring matching (US must not match Russia).
     Unknown country strings must not be treated as proven contradictions.
     """
-    if not isinstance(text, str):
+    if not isinstance(text, str) or _country_key(text) in _PLACEHOLDERS:
         return None
     return _ALIASES.get(_country_key(text))
 
