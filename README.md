@@ -1,6 +1,6 @@
 # Track 2: Same Person or Not?
 
-**Start with `AGENTS.md` and `brain/`**: the team's shared knowledge and the rules for humans and AI tools. Update `brain/` in the same commit as your change.
+**Judges: see [`system/README.md`](system/README.md).** Team: start with `AGENTS.md` and `brain/`: the team's shared knowledge and the rules for humans and AI tools. Update `brain/` in the same commit as your change.
 
 For every screening hit, decide `DIFFERENT_ENTITY`, `SAME_ENTITY` or `REVIEW`, following `dev/POLICY.md`.
 
