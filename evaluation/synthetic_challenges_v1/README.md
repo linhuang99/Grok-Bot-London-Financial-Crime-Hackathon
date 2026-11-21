@@ -41,7 +41,7 @@ python3 validate.py --data "$CHALLENGE_ROOT/group_$CHALLENGE_GROUP/input" --outp
 The `results/` folder is ignored, so local predictions will not be uploaded.
 Never read `gold/` from the submitted classification program.
 
-## Evaluation limits / 使用约定
+## Evaluation limits
 
 - These are challenge/regression cases, not official hidden data or a statistically independent benchmark. The author knew the existing implementation.
 - Groups use disjoint customer/account/contact/document records. One synthetic watchlist name is reused between groups 01 and 04; they are not completely person-disjoint. This is disclosed rather than silently changing frozen V1 data.
@@ -52,4 +52,4 @@ Never read `gold/` from the submitted classification program.
 - Existing 50 development cases plus these 52 tests are about 49/51, not an 80/20 split. Do not describe this package as an uncontaminated 80/20 holdout.
 - Record the code commit, all group scores, unsafe clearances and mistakes. Do not report only the best group.
 
-中文：四组输入与答案分开放，原50条只作为已有开发集。第一、四组有一个重复合成人名，但没有共享客户或业务记录。本包的标准答案建议由队友独立复核；未公开官方测试成绩仍未知。
+The four groups keep their inputs and answers separate; the original 50 practice labels remain the development set. Groups 1 and 4 share one repeated synthetic name, but no customer or business records. The gold answers should be reviewed independently by a teammate; the score on the unseen official test set remains unknown.

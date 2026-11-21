@@ -5,7 +5,7 @@ screening submission still runs with `system/run <input folder> <output file>`;
 neither Streamlit nor the UI is required by the screening engine.
 
 The visual workspace lives in the existing TraceSphere project, in
-`src/scam_linker/screening_ui.py`. Its `app.py` offers **名单筛查** next to the
+`src/scam_linker/screening_ui.py`. Its `app.py` offers a **Watchlist screening** workspace next to the
 original investigation workspace. Start that project with its existing
 `.venv/bin/python run.py`, then select the screening workspace. Set the local
 repository path in the page, or set `SCREENING_REPO` before starting the UI.

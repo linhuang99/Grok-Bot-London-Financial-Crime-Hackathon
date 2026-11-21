@@ -1,10 +1,9 @@
-# Lane B: identity facts and parse-quality contract / 身份事实与解析质量约定
+# Lane B: identity facts and parse-quality contract
 
 **Owner: linhuang. Contract version: 1.**
 
 Lane A resolves the customer; Lane B resolves the watchlist profile. Both pass facts to the shared rule-based decision layer. This document is the handoff contract, not a claim that the full screening system is finished. `system/run` currently remains the all-REVIEW baseline.
 
-中文：已识别的信息照常保留；没有提供的信息、提供了但无法解析的信息必须分开表达。请先接入下面的质量检查，再把这些事实用于身份判断。旧代码如果忽略新增字段，不会自动获得这些保护。
 
 ## 1. Files and responsibilities
 
