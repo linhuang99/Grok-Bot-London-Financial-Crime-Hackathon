@@ -72,6 +72,23 @@ class KycNotes(unittest.TestCase):
                          (None, None, None, []))
 
 
+class KycNoteFalseMatches(unittest.TestCase):
+    """Facts a note gives about a document must never become the person's identity."""
+
+    def test_a_document_named_in_capitals_is_not_a_name(self):
+        check = kyc("Onfido verified the UNITED KINGDOM PASSPORT of Anna Klein on 2024-01-15, DOB 1980-05-01.")
+        self.assertIsNone(check["verified_name"])
+        self.assertEqual(check["verified_dob"], "1980-05-01")
+
+    def test_an_expiry_or_issue_date_is_not_a_birth_date(self):
+        check = kyc("ANNA KLEIN's passport (expires 2031-06-30) was verified by Veriff on 2024-02-01.")
+        self.assertEqual((check["verified_name"], check["verified_dob"]), ("ANNA KLEIN", None))
+
+    def test_an_issue_date_between_birth_and_check_does_not_hide_the_birth_date(self):
+        check = kyc("Sumsub verified ANNA KLEIN on 2024-02-01 using a passport issued 2019-03-03, born 1980-05-01.")
+        self.assertEqual(check["verified_dob"], "1980-05-01")
+
+
 class LivedIn(unittest.TestCase):
     def test_every_country_a_note_mentions_counts_however_it_is_worded(self):
         for text, expected in [("The customer lived and worked in Ghana from 2014 to 2018.", ["Ghana"]),

@@ -20,6 +20,12 @@ _BIRTH_WORDS = re.compile(r"\b(?:dob|d\.o\.b|born|birth)\b", re.IGNORECASE)
 _SHORT_CODES = re.compile(r"\b(?:U\.S\.A\.|U\.K\.|U\.S\.|USA|UAE|UK)(?!\w)")
 # Capitalised words that are never part of a name in these notes.
 _NOT_NAME_WORDS = {"DOB", "ID", "KYC", "UK", "USA", "UAE", "US", "EU", "PEP", "AML", "N/A"}
+# Document words: "UNITED KINGDOM PASSPORT" is a document, not a person's name.
+_DOCUMENT_WORDS = {"PASSPORT", "LICENCE", "LICENSE", "DRIVING", "NATIONAL", "IDENTITY", "CARD",
+                   "DOCUMENT", "PERMIT", "VISA", "RESIDENCE"}
+# The earliest date is a date of birth only if it is this many years before the next one: a person is
+# born long before any check, issue or expiry date ("expires 2031-06-30 ... verified on 2024-02-01").
+MIN_YEARS_BEFORE_CHECK = 16
 
 
 def is_kyc_note(note):
@@ -35,7 +41,9 @@ def kyc_check(note):
     dates = sorted(find_dates(text), key=lambda found: found[1])
     birth = checked = None
     if len(dates) >= 2:
-        birth, checked = dates[0][0], dates[-1][0]
+        checked = dates[-1][0]
+        if dates[1][1][0] - dates[0][1][0] >= MIN_YEARS_BEFORE_CHECK:
+            birth = dates[0][0]
     elif dates and _BIRTH_WORDS.search(text):
         birth = dates[0][0]
     elif dates:
@@ -76,9 +84,17 @@ def verified_name(text):
             runs.append(current)
             current = []
     runs.append(current)
-    names = [" ".join(run) for run in runs if len(run) >= 2]
-    names = [n for n in dict.fromkeys(names) if not country_name(n)]
+    names = [" ".join(run) for run in runs if len(run) >= 2 and not _names_a_thing(run)]
+    names = list(dict.fromkeys(names))
     return names[0] if len(names) == 1 else None
+
+
+def _names_a_thing(words):
+    """True when capitalised words name a document or a country, not a person."""
+    if any(w.upper() in _DOCUMENT_WORDS for w in words):
+        return True
+    return any(country_name(" ".join(words[i:i + k])) and len(" ".join(words[i:i + k])) > 3
+               for k in (1, 2, 3) for i in range(len(words) - k + 1))
 
 
 def lived_in(note):

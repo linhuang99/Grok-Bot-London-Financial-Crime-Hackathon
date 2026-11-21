@@ -59,8 +59,11 @@ class ImplausibleYears(unittest.TestCase):
         self.assertEqual(parse_date("31/12/2100"), (2100, 12, 31))
 
 
+NAMES = ["Ana Ruiz", "Tom Hale", "Maria Miller", "Pere Vila"]  # the listed person's names (invented)
+
+
 class AgesAtDates(unittest.TestCase):
-    """One age and one date in a text give the age at that date. Invented names."""
+    """One age of the listed person and one date in a text give their age at that date. Invented names."""
 
     def test_every_wording_seen_in_the_data(self):
         cases = [
@@ -77,7 +80,7 @@ class AgesAtDates(unittest.TestCase):
         ]
         for text, age, date in cases:
             with self.subTest(text=text):
-                self.assertEqual(ages_at_dates(text), [(age, date)])
+                self.assertEqual(ages_at_dates(text, NAMES), [(age, date)])
 
     def test_ambiguous_texts_give_nothing(self):
         for text in ["In May 2002 and June 2003 he was 40.",            # two dates
@@ -87,7 +90,7 @@ class AgesAtDates(unittest.TestCase):
                      "He was 40.",                                      # no date
                      "", None]:
             with self.subTest(text=text):
-                self.assertEqual(ages_at_dates(text), [])
+                self.assertEqual(ages_at_dates(text, NAMES), [])
 
     def test_numbers_that_are_not_ages(self):
         for text in ["In March 2019 he was 3 times convicted.",
@@ -96,7 +99,39 @@ class AgesAtDates(unittest.TestCase):
                      "In May 2002 he was fined 12, plus costs.",
                      "Federal Register notice: Vol. 74, No. 11, imposed 1/9/2009."]:
             with self.subTest(text=text):
-                self.assertEqual(ages_at_dates(text), [])
+                self.assertEqual(ages_at_dates(text, NAMES), [])
+
+    def test_ages_of_someone_else_are_never_the_listed_persons(self):
+        for text in ["In March 2019, a UK politically exposed person appeared together with a 25-year-old witness.",
+                     "Tom Hale was questioned in March 2019 alongside a witness aged 25.",
+                     "In March 2019, Tom Hale's son, then 12, was interviewed.",
+                     "In March 2019 the witness, 25, spoke to Tom Hale.",
+                     "In March 2019 a witness from the United Kingdom, aged 25, testified.",
+                     "In March 2019 Tom Hale appeared with his wife, aged 40."]:
+            with self.subTest(text=text):
+                self.assertEqual(ages_at_dates(text, ["Tom Hale"]), [])
+        self.assertEqual(ages_at_dates("Tom Hale met 26, Maria Miller, in March 2019.", ["Tom Hale"]), [])
+
+    def test_the_subject_pronouns_and_listing_roles_refer_to_the_listed_person(self):
+        for text in ["An indictment naming Tom Hale was issued in October 2004, when the subject was 48.",
+                     "During December 2012, Tom Hale faced charges while at the age of 43.",
+                     "Aged 45 when sentenced in March 2019.",
+                     "In May 2002 a politically exposed person in Serbia, aged 29, was listed."]:
+            with self.subTest(text=text):
+                self.assertEqual(len(ages_at_dates(text, ["Tom Hale"])), 1)
+
+
+class BelongsTo(unittest.TestCase):
+    def test_holder_is_the_person_someone_else_or_nobody(self):
+        from common import belongs_to
+        own = ["Tom Hale"]
+        cases = [("Tom Hale was born on 4 May 1970.", "born", True),
+                 ("His daughter was born on 4 May 2001.", "born", False),
+                 ("Date of birth: 4 May 1970.", "birth", None),
+                 ("A politically exposed person in United Kingdom, born in 1970.", "born", True)]
+        for text, word, expected in cases:
+            with self.subTest(text=text):
+                self.assertEqual(belongs_to(text, text.index(word), len(text) - 1, own), expected)
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@
 No decisions, network calls, practice answers or inferred missing date parts.
 """
 import re
-from common import ages_at_dates, parse_date, country_parse_status, countries_in_text, fold
+from common import ages_at_dates, belongs_to, parse_date, country_parse_status, countries_in_text, fold
 from data import search_keys
 from names import name_parts
 
@@ -68,10 +68,14 @@ class _Quality:
         return quality, sorted(self.issues, key=lambda i: (i['field'], i['source'], i['path'], i['code']))
 
 
-def _text_births(text, source, q):
+def _text_births(text, source, q, names):
+    """Birth dates of the listed person in free text. A date or age that belongs to
+    someone else ("his daughter was born on ...", "a 25-year-old witness") is skipped."""
     found, covered = [], []
     for match in _BIRTH.finditer(text):
         covered.append(match.span())
+        if belongs_to(text, match.start(), match.end(), names) is False:
+            continue  # a labelled field ("DOB: ...") has no holder and still counts
         date = parse_date(match['date'])
         if date:
             found.append(_fact(date, source)); q.good('births')
@@ -79,6 +83,8 @@ def _text_births(text, source, q):
             q.bad('births', 'INVALID_DATE', source, 'birth_expression')
     for match in _AGE.finditer(text):
         covered.append(match.span())
+        if belongs_to(text, match.start(), match.end(), names) is False:
+            continue
         age, date = int(match['age']), parse_date(match['date'])
         if date and date[0] - age - 1 > 0:
             for year in (date[0] - age - 1, date[0] - age):
@@ -89,7 +95,7 @@ def _text_births(text, source, q):
     if not found:
         # Other wordings of an age at a date ("a 30-year-old", "he was 46.",
         # "Fiorani, 52, who..."), only when the text holds exactly one age and one date.
-        for age, date in ages_at_dates(text):
+        for age, date in ages_at_dates(text, names):
             if date[0] - age - 1 > 0:
                 found += [_fact((date[0] - age - 1, None, None), source), _fact((date[0] - age, None, None), source)]
                 q.good('births')
@@ -203,7 +209,7 @@ def _search_births(hit, data, names, countries, q):
             q.bad('births', 'INVALID_SEARCH_TEXT', rid, 'snippet'); continue
         text = title + '\n' + snippet
         if phrase.casefold() in text.casefold() and tied & countries_in_text(text):
-            found.extend(_text_births(text, rid, q))
+            found.extend(_text_births(text, rid, q, names))
     return _unique(found)
 
 
@@ -249,7 +255,7 @@ def hit_facts(hit, data):
     if not births and entity_type == 'Individual':
         lead = re.split(r'\n\s*\n', notes.strip(), maxsplit=1)[0]
         lead = re.split(r'(?m)^According to ', lead, maxsplit=1)[0]
-        births = _text_births(lead, hid + '#profile_notes', q)
+        births = _text_births(lead, hid + '#profile_notes', q, names)
         if births:
             birth_source = 'profile'
         else:

@@ -110,24 +110,81 @@ _AGE_IN_TEXT = re.compile(
 MAX_AGE = 120
 
 
-def ages_at_dates(text):
-    """[(age, date)] when the text states exactly one age and exactly one date, else [].
+def ages_at_dates(text, names):
+    """[(age, date)] when the text states exactly one age of the listed person and exactly one date.
 
-    "In February 2010, at the age of 33, ..." gives [(33, (2010, 2, None))]: the
-    person was born in 1976 or 1977. Two dates or two ages are ambiguous and give
-    nothing, as do ages above MAX_AGE: a wrong age would invent a birth year.
+    "In February 2010, at the age of 33, Ana Ruiz ..." gives [(33, (2010, 2, None))]
+    for names ["Ana Ruiz"]: born in 1976 or 1977. An age that belongs to someone
+    else ("a 25-year-old witness") is not counted (see belongs_to). Two dates or
+    two ages are ambiguous and give nothing, as do ages above MAX_AGE: a wrong
+    age would invent a birth year.
     """
     if not isinstance(text, str):
         return []
     dates = [parsed for _, parsed in find_dates(text)]
     ages = []
     for match in _AGE_IN_TEXT.finditer(text):
-        if match.group(6) and not all(w[:1].isupper() for w in text[match.end():].split()[:2]):
-            continue  # "N, x y" counts only before a capitalised name: "26, Maria Miller", not "12, plus costs"
-        ages.append(int(next(g for g in match.groups() if g)))
+        holder_after = bool(match.group(1) or match.group(6))  # "a 30-year-old Ana", "26, Ana Ruiz"
+        if belongs_to(text, match.start(), match.end(), names, holder_after) is not False:
+            ages.append(int(next(g for g in match.groups() if g)))
     if len(dates) == 1 and len(ages) == 1 and 0 < ages[0] <= MAX_AGE:
         return [(ages[0], dates[0])]
     return []
+
+
+# Words that refer to the listed person: pronouns, "the subject", and the listing roles the
+# policy uses for them ("a politically exposed person", "a sanctioned individual", "... official").
+_PRONOUNS = {'he', 'she', 'they', 'who', 'subject', 'person', 'individual', 'official'}
+# Words skipped when looking for the holder: words of the expression itself, and prepositions, so
+# that "a witness from the United Kingdom, aged 25" reaches "witness".
+_SKIP_WORDS = {'a', 'an', 'the', 'was', 'is', 'were', 'been', 'then', 'at', 'age', 'aged', 'of',
+               'year', 'years', 'old', 'turned', 'reached', 'born', 'on', 'in', 'from', 'for', 'with',
+               'to', 'by', 'during', 'date', 'dob'}
+# Conjunctions end the search: past one, the expression starts a new clause about the subject.
+_STOP_WORDS = {'when', 'while', 'whilst', 'as', 'which', 'and', 'or'}
+_WORD = re.compile(r"[^\W\d_]+(?:['’][^\W\d_]+)*|\d+")
+
+
+def belongs_to(text, start, end, names, holder_after=False):
+    """False when the age or birth date at text[start:end] is attached to someone else.
+
+    The holder is the word the expression attaches to: the one after it for
+    "a 30-year-old X" or "26, X" (holder_after), otherwise the one before it
+    ("X, aged 30", "X, 52,", "he was 46", "her son, born 2001"). Expression
+    words, prepositions, dates and country names are skipped; a conjunction
+    ("while at the age of 43") means no holder.
+    Returns True for the person's own name or a pronoun, False for anything
+    else ("a 25-year-old witness", "met 26, Maria Miller"), None for no holder:
+    in the person's own profile or search result that is the person.
+    """
+    own = {fold(w) for name in names if isinstance(name, str) for w in _WORD.findall(name) if len(w) > 1}
+    text = _DATE_IN_TEXT.sub(lambda m: ' ' * len(m.group(0)), text)  # a date is never the holder
+    sentence_start = max(text.rfind(c, 0, start) for c in '.!?;\n') + 1
+    sentence_end = min([i for i in (text.find(c, end) for c in '.!?;\n') if i >= 0] or [len(text)])
+    if holder_after and not text[end:sentence_end].lstrip()[:1].isalpha():
+        holder_after = False  # "Ruiz, a 30-year-old, faced": nothing attached after, so look before
+    side = text[end:sentence_end] if holder_after else text[sentence_start:start]
+    words = _WORD.findall(side)
+    if not holder_after:
+        words.reverse()
+    i = 0
+    while i < len(words):
+        word = words[i]
+        folded = fold(word.split("'")[0].split('’')[0])  # "Hale's" -> "hale"
+        if folded in _SKIP_WORDS or word.isdigit():
+            i += 1
+            continue
+        if folded not in own and word[:1].isupper():
+            # A country ("United Kingdom") is not a holder: skip all its words. Short codes ("In") never count.
+            country = [k for k in (3, 2, 1) if len(' '.join(words[i:i + k])) > 3
+                       and country_name(' '.join(words[i:i + k] if holder_after else reversed(words[i:i + k])))]
+            if country:
+                i += country[0]
+                continue
+        if folded in _STOP_WORDS:
+            return None
+        return folded in own or folded in _PRONOUNS
+    return None
 
 
 def dates_agree(a, b):

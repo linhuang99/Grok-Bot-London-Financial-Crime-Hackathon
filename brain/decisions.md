@@ -2,6 +2,9 @@
 
 Newest first. One line for the choice, one for why.
 
+**21 Nov: A birth date or age read from free text counts only if it belongs to the listed person (`common.belongs_to`), and a KYC note never takes a document or an expiry date as the person's identity.**
+Reproduced false matches that would have created unsafe clears on unseen wording: "a 25-year-old witness", "his daughter was born on ...", "met 26, Maria Miller", "UNITED KINGDOM PASSPORT" read as a verified name, "expires 2031-06-30" read as a date of birth. Rule: the word an expression attaches to must be the person's name, a pronoun, "the subject" or a policy listing role ("a politically exposed person"); a different noun or name means someone else. A note's earliest date is a birth date only when at least 16 years before the next date (the smallest gap in dev is 17). No dev decision changed: these guard the unseen set.
+
 **21 Nov: Lane A fixed two hit-side bugs in `hitfacts.py`, agreed with linhuang: every country field is read as a place, and a text with exactly one age and one date gives two birth years (`common.ages_at_dates`).**
 `nationality` and `countries` hold places like "Belgrade, Serbia" (34 hits were flagged unrecognised, blocking location clears and search births). Profiles and search results state age in many wordings ("a 30-year-old", "he was 46.", "Fiorani, 52,"). Two dates or two ages are ambiguous and give nothing; numbers such as "Vol. 74, No. 11" or "was 4,600" are not ages (found by auditing every new birth year on dev, not just the labels).
 
