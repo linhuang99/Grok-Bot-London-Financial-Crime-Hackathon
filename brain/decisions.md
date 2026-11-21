@@ -2,6 +2,10 @@
 
 Newest first. One line for the choice, one for why.
 
+**21 Nov: Add field-specific V1 quality and issue metadata without replacing existing facts.**
+The user approved the interface extension. Distinguish absence from parse failure, preserve usable facts and provenance, and fail closed when full-set comparisons would otherwise discard unknown alternatives. Do not infer conflicts solely from multiple allowed birthdays. Add source-ID conflict detection and consumer-side parsing gates; final decisions remain in policy code.
+
+
 **21 Nov: Missing hit type stays unknown; output ordering and English month parsing are explicit.**
 Avoid unsupported assumptions and environment-dependent extraction. Add standard-library-only regression guardrails; keep final identity decisions pending shared pipeline integration.
 

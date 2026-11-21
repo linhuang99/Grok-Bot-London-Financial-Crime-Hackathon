@@ -79,3 +79,7 @@ customers.email ──> notes.requester_email
 - Birth-date source precedence: structured `dobs`, then the first profile paragraph, then supplied search results. Company incorporation dates use only `dobs`.
 
 - Defensive missing-value behaviour is tested on synthetic input: a missing entity type remains unknown. This is not a claim that official dev hits are missing type.
+
+## Checked V1 quality audit
+
+All 819 dev hits extracted without exceptions, repeated outputs identical, and fact/issue source references resolve to supplied hit/search records. Country quality: 698 PARSED, 23 PARTIAL, 11 UNPARSED, 87 MISSING. Birth quality: 176 PARSED, 2 UNPARSED, 641 MISSING. These are parser states, not accuracy labels or evidence of correct identity decisions. No participant values were copied into docs or tests.

@@ -36,3 +36,9 @@ Evidence IDs may be record IDs from the data files, URLs, or a hit field written
 | `output/dev.jsonl` | The system's predictions on the dev set |
 | `tests/` | Unit tests (`python3 -m unittest discover tests`) |
 | `dev/`, `validate.py` | From the data room (not in git) |
+
+## Lane B interface and unresolved information
+
+Read [Lane B README](system/LANE_B_README.md) before integrating hit facts.
+It defines the V1 `quality`/`issues` contract, examples, field-specific rule gates,
+source precedence and important tests. It is not the final system architecture README.

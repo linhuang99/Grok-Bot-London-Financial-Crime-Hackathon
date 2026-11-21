@@ -6,7 +6,7 @@ Update this when you claim or finish a task, or when the score changes.
 
 | When | Decision score | Unsafe clearances | Notes |
 |---|---|---|---|
-| 21 Nov, latest Hard rules check | 0.0 | 0 | 819 lines, 0 format problems; runner still all REVIEW; 32 unit tests pass |
+| 21 Nov, latest Hard rules check | 0.0 | 0 | 819 lines, 0 format problems; runner still all REVIEW; 67 tests pass |
 
 ## Tasks
 
@@ -15,9 +15,9 @@ Plan and times: `brain/roadmap.md`. Edit only your own rows.
 | Task | Owner | State |
 |---|---|---|
 | Repo scaffold, `brain/`, agent instructions, roadmap | garyyehhh | done |
-| `common.py` (dates, countries) and stubs wired into `system/run` | linhuang | Helpers implemented and tested; shared runner wiring pending |
-| `names.py` (principle 8, with tests) | linhuang | First implementation and unit tests complete; integration pending |
-| `hitfacts.py` (names, dobs, countries, reports, death) | linhuang | First implementation and unit tests complete; integration pending |
+| `common.py` (dates, countries) and stubs wired into `system/run` | linhuang | Helpers and V1 parsing gates tested; shared runner wiring pending |
+| `names.py` (principle 8, with tests) | linhuang | V1 quality implementation and comprehensive tests complete; consumer integration pending |
+| `hitfacts.py` (names, dobs, countries, reports, death) | linhuang | V1 quality implementation and comprehensive tests complete; consumer integration pending |
 | `decide.py` with reasons and evidence | linhuang | Not implemented; requires coordinated Lane A integration |
 | `data.py` (load and index every file) | linhuang99 | next, by 12:50 |
 | `link.py` (linked alerts, joint accounts, verified facts) | linhuang99 | by 14:00 |
@@ -41,7 +41,7 @@ Plan and times: `brain/roadmap.md`. Edit only your own rows.
 
 ## Latest checks
 
-After the system edit, ran the three required commands in order:
+After the V1 batched system edit, immediately ran:
 
 ```sh
 system/run dev output/dev.jsonl
@@ -49,9 +49,11 @@ python3 validate.py --data dev --output output/dev.jsonl --score dev/practice_la
 python3 -m unittest discover tests
 ```
 
-Results: **819 lines, 0 format problems, 0 unsafe clearances, decision score 0.0; 32 unit tests passed**. New tests cover standard-library imports, no current model/network calls, no literal participant IDs/practice-label paths, unknown values, input immutability, ordering and cross-process hash-seed stability. These are guardrails, not a proof of complete policy correctness.
+Results: **819 lines, 0 format problems, 0 unsafe clearances, decision score 0.0; 67 tests passed** (rewritten functional/quality tests plus retained Hard rules checks). All 819 hit extractions were also checked for deterministic repeat output and valid fact/issue source IDs. No model calls or paid API usage.
 
-The earlier implementation ran full checks before upload, rather than after every intermediate edit. This is a recorded process deviation; it cannot be retroactively corrected. This revision ran full checks immediately after its batched system edit. Future system edits require the same three-command gate.
+V1 contract README: [system/LANE_B_README.md](../system/LANE_B_README.md). `quality` and `issues` are implemented in Lane B; Lane A and the final decision pipeline still need to consume them. The unchanged all-REVIEW runner's score 0.0 must not be presented as an integrated result.
+
+Earlier intermediate edits did not each run the full gate; that historical deviation remains recorded. This revision ran the complete gate immediately after its batched system edit. Future system edits require the same three-command gate.
 
 ## Sync
 

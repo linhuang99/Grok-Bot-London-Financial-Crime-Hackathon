@@ -78,6 +78,11 @@ HitFacts = {
     "countries": [Fact],
     "earliest_report": Fact | None,       # value is a PartialDate
     "death": Fact | None,
+    "quality_version": 1,
+    "quality": {field: {"status": "MISSING|PARSED|PARTIAL|UNPARSED", "parsed": int, "unparsed": int, "ignored": int}},
+    "issues": [{"field": str, "code": str, "source": str, "path": str, "blocking": bool}],
+    "name_sources": {name: [source_id]},
+    "birth_source": "structured" | "profile" | "search" | None,
 }
 ```
 
@@ -104,3 +109,13 @@ Unknown country strings return None, and unknown dates remain unknown. Consumers
 If a hit lacks entity type, return `None` rather than defaulting to `Individual`. Downstream comparison must not treat this as a type mismatch or use person-only confirmation rules. Person-only text birth extraction is skipped when type is unknown. Structured dates retain their original evidence.
 
 Names/aliases and evidence facts have stable output ordering. English date parsing uses a fixed English month table, independent of host locale. No model fallback is present. If one is added later it must use only the OpenRouter chat-completions endpoint, `OPENROUTER_API_KEY`, a pinned model and temperature 0, with extraction validation and no model-made identity decisions.
+
+## Lane B quality contract V1
+
+See [LANE_B_README.md](../system/LANE_B_README.md) for the complete teammate-facing contract. Function signatures and original Fact fields remain unchanged; extra metadata is additive but consumers MUST adopt it before relying on full-set contradictions. This is a producer-side interface update, not a claim that Lane A or the shared decision module is integrated.
+
+`MISSING` means no eligible input, `PARSED` means all supplied eligible candidates handled, `PARTIAL` means successes plus failures, and `UNPARSED` means present but unusable/unperformed required investigation. A partial date can be fully PARSED. Policy-excluded regions are ignored; invalid country/date values remain issues with source/path, never silent omission. Duplicate search IDs with differing content produce an unresolved conflict.
+
+`common.field_is_complete(facts, field)` rejects legacy/unknown versions, malformed metadata, missing/partial/unparsed fields and blocking issues. It is a parsing gate, not a decision. Both sides need equivalent completeness handling; unresolved unrelated fields do not globally veto independent sufficient contradictions. Positive confirmation must still exclude possible identity-relevant contradictions. Missing quality on old Person dictionaries must not be silently upgraded to PARSED.
+
+Lane A code, the shared runner and final decision code were not changed. Teammate acceptance of this V1 contract and consumer-side tests remain required before end-to-end integration.
