@@ -2,6 +2,12 @@
 
 Newest first. One line for the choice, one for why.
 
+**21 Nov, 16:35: Four fixes from the independent adversarial set (75.9 -> 100, 0 unsafe; dev and the four groups unchanged at 100).**
+- A KYC note is an identity check only if it states a name or a date of birth ("No identity changes reported" was hiding real identities). Every note's countries count, KYC notes included ("I lived in Accra, Ghana").
+- A KYC note with the name in normal case verifies the customer's own record name when it appears in the note.
+- An exact name match in any script (Arabic, Cyrillic, Polish ł) can confirm; the unreadable-script flag still blocks name-based clears.
+- **Reverses the earlier option (b): a link that leads to no customer finds nobody (REVIEW).** A namesake found by searching is not the customer the alert was raised on; clearing on their facts would be unsafe. The independent answer key reads the policy the same way.
+
 **21 Nov: A birth date or age read from free text counts only if it belongs to the listed person (`common.belongs_to`), and a KYC note never takes a document or an expiry date as the person's identity.**
 Reproduced false matches that would have created unsafe clears on unseen wording: "a 25-year-old witness", "his daughter was born on ...", "met 26, Maria Miller", "UNITED KINGDOM PASSPORT" read as a verified name, "expires 2031-06-30" read as a date of birth. Rule: the word an expression attaches to must be the person's name, a pronoun, "the subject" or a policy listing role ("a politically exposed person"); a different noun or name means someone else. A note's earliest date is a birth date only when at least 16 years before the next date (the smallest gap in dev is 17). No dev decision changed: these guard the unseen set.
 

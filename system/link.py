@@ -5,9 +5,10 @@ a login or an email. resolve() follows every link to customer records. When
 the links lead to more than one record (a joint account), the screened
 details pick between them. A single linked record is the customer.
 
-An alert with no link, or with a link that leads nowhere, is searched for:
-every record whose name agrees with the screened name and whose other details
-fit what was screened (checkpoint A6).
+An alert with no link is searched for: every record whose name agrees with
+the screened name and whose other details fit what was screened (checkpoint
+A6). A link that leads nowhere finds nobody: a namesake found by searching is
+not the customer the alert was raised on, and clearing on their facts would be unsafe.
 
 Each record found is then grown into its person (principle 3, checkpoint A7):
 records sharing a phone and the same full date of birth, or a document number
@@ -29,10 +30,10 @@ def resolve(alert, data):
     found; the others are their other records, in ID order.
     """
     records = linked_records(alert, data)
+    if not records and _has_link(alert):
+        print("link: warning: alert %s links to no customer; nobody resolved" % alert.get("alert_id"), file=sys.stderr)
+        return []
     if not records:
-        if _has_link(alert):
-            print("link: warning: alert %s links to no customer; treated as unlinked" % alert.get("alert_id"),
-                  file=sys.stderr)
         records = search(alert, data)
     elif len(records) > 1:
         records = [r for r in records if fits_screened(alert, r, data)]

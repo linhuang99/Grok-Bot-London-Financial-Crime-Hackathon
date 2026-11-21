@@ -7,6 +7,8 @@ identity check gives the legal name and date of birth, and rejected or expired
 checks are not evidence. Without one, the customer record's own (declared)
 facts are used, and their CUS source shows it.
 """
+import re
+
 from common import country_name, fold, parse_date
 from data import id_key, phone_key, text_key
 from notes import is_kyc_note, kyc_check, lived_in
@@ -107,8 +109,20 @@ def _notes(records, data):
 
 
 def approved_checks(records, data):
-    """Approved identity checks: KYC table rows (record -> accounts -> onboarding -> checks) and KYC notes."""
-    checks = [kyc_check(n) for n in _notes(records, data) if is_kyc_note(n) and n.get("note_id")]
+    """Approved identity checks: KYC table rows (record -> accounts -> onboarding -> checks) and KYC notes.
+
+    A KYC note is an identity check only if it states a name or a date of birth:
+    "No identity changes reported" or "Passport expiry 2032-04-18" verify nothing.
+    """
+    checks = []
+    for note in _notes(records, data):
+        if not is_kyc_note(note) or not note.get("note_id"):
+            continue
+        check = kyc_check(note)
+        if not check["verified_name"]:
+            check["verified_name"] = _own_name_in(note.get("text"), records)
+        if check["verified_name"] or check["verified_dob"]:
+            checks.append(check)
     seen = {c["check_id"] for c in checks}
     for record in records:
         record_id = id_key(record["record_id"])
@@ -120,6 +134,18 @@ def approved_checks(records, data):
                     seen.add(check["check_id"])
                     checks.append(check)
     return checks
+
+
+def _own_name_in(text, records):
+    """The customer's own record name when a note writes it in normal case ("... verification: Ana Ruiz, born ...")."""
+    words = " ".join(re.findall(r"[^\W\d_]+", fold(text or "")))
+    for record in records:
+        for field in ("full_name", "preferred_name"):
+            name = _text(record.get(field))
+            parts = re.findall(r"[^\W\d_]+", fold(name or ""))
+            if len(parts) >= 2 and re.search(r"(?<!\w)" + re.escape(" ".join(parts)) + r"(?!\w)", words):
+                return name
+    return None
 
 
 def _latest(checks):
@@ -148,8 +174,8 @@ def _countries(records, checks, data):
     values = [(r.get(field), r["record_id"]) for r in records for field in ("residence_country", "nationality")]
     values += [(c.get("document_country"), c["check_id"]) for c in checks]
     values += [(country, c["check_id"]) for c in checks for country in c.get("note_countries", [])]
-    values += [(country, n["note_id"]) for n in _notes(records, data)
-               if not is_kyc_note(n) and n.get("note_id") for country in lived_in(n)]
+    # Every note's countries count, KYC notes included: "I lived in Accra, Ghana" can be filed under KYC.
+    values += [(country, n["note_id"]) for n in _notes(records, data) if n.get("note_id") for country in lived_in(n)]
     countries, unreadable = [], []
     for value, source in values:
         if not _text(value):

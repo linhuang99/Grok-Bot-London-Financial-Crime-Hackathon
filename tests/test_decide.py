@@ -155,6 +155,15 @@ class Names(DecideTest):
         self.assertEqual(run([person(name="Ana")], hit)["decision"], "REVIEW")
 
 
+class OtherScripts(DecideTest):
+    def test_exact_name_in_another_script_confirms_but_never_clears_by_name(self):
+        arabic = person(name="سلمى نادر")
+        hit = facts(names=("Salma Nadir", "سلمى نادر"), partial=("names",))  # the unreadable script is flagged
+        self.assertDecision(run([arabic], hit), "SAME_ENTITY", "NAME_DOB_LOCATION_MATCH")
+        other = facts(names=("Salma Nadir", "ليلى حسن"), births=(), partial=("names",))
+        self.assertEqual(run([arabic], other)["decision"], "REVIEW")
+
+
 class EntityType(DecideTest):
     def test_person_against_company_clears_but_unknown_type_does_not(self):
         self.assertDecision(run([person()], facts(births=(), entity="Company")), "DIFFERENT_ENTITY", "ENTITY_TYPE_MISMATCH")

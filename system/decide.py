@@ -105,7 +105,9 @@ def _decide_person(alert, hit, person, facts, data):
 
     # --- Agreement: confirm only when nothing above contradicted.
     shared = customer_countries & hit_countries
-    names_complete = field_is_complete(customer, "names")
+    # Lane A's statement, not the script-sensitive gate: an exact match in Arabic or Cyrillic
+    # confirms, while the unreadable-script flag still blocks a name-based clear above.
+    names_complete = "names" in person.get("complete_fields", ())
     if not company and matched_name and agreeing_births and names_complete and field_is_complete(customer, "births"):
         disjoint = customer_countries and hit_countries and not shared
         if not disjoint:

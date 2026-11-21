@@ -157,6 +157,28 @@ class CustomerUsesNotes(unittest.TestCase):
         p = person(["CUS-000001"], self.data([note]))
         self.assertIn({"value": "Ghana", "source": "NOTE-000002"}, p["countries"])
 
+    def test_a_kyc_note_that_verifies_nothing_is_not_an_identity_check(self):
+        table = {"check_id": "KYC-000001", "applicant_id": "APP-000001", "verified_name": "ANNA KLEIN",
+                 "verified_dob": "1980-05-01", "document_country": "Germany", "result": "approved", "checked_at": "2020-01-01"}
+        for text in ["No identity changes reported.", "Passport issued on 2022-04-19; document expiry 2032-04-18."]:
+            with self.subTest(text=text):
+                note = dict(self.KYC_NOTE, text=text)
+                self.assertEqual(person(["CUS-000001"], self.data([note], [table]))["verified_name"]["source"], "KYC-000001")
+                alone = person(["CUS-000001"], self.data([note]))
+                self.assertIsNone(alone["verified_name"])
+                self.assertIn("names", alone["complete_fields"])
+                self.assertIn("births", alone["complete_fields"])
+
+    def test_own_record_name_in_normal_case_is_the_verified_name(self):
+        note = dict(self.KYC_NOTE, text="Onboarding approved identity verification on 2026-02-10: Anna Klein, born 2 May 1980.")
+        p = person(["CUS-000001"], self.data([note]))
+        self.assertEqual(p["verified_name"], {"value": "Anna Klein", "source": "NOTE-000001"})
+        self.assertEqual(p["dob"]["value"], (1980, 5, 2))
+
+    def test_a_kyc_channel_note_about_where_they_lived_adds_a_country(self):
+        note = dict(self.KYC_NOTE, text="I lived in Accra, Ghana from 2001 until 2008 before moving to York.")
+        self.assertIn({"value": "Ghana", "source": "NOTE-000001"}, person(["CUS-000001"], self.data([note]))["countries"])
+
     def test_unreadable_name_in_the_latest_check_makes_names_incomplete(self):
         note = dict(self.KYC_NOTE, text="Sumsub verified the customer, born 2 May 1980, on 2025-03-01.")
         p = person(["CUS-000001"], self.data([note]))

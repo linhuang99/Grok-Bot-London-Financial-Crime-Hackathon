@@ -70,9 +70,11 @@ class FollowsLinks(LinkTest):
         data = self.data([customer("CUS-000001", "Maria Lopez")])
         self.assertEqual(self.resolve(alert(email=" CUS-000001@Mail.Example"), data), [["CUS-000001"]])
 
-    def test_link_to_nothing_is_searched_like_no_link(self):
+    def test_link_to_nothing_finds_nobody_but_no_link_is_searched(self):
+        # A namesake found by searching is not the customer a dead link was raised on.
         data = self.data([customer("CUS-000001", "Maria Lopez"), customer("CUS-000002", "Jorge Lopez", dob="1979-06-01")])
-        self.assertEqual(self.resolve(alert(account_ref="ACC-999999"), data), [["CUS-000001"]])
+        self.assertEqual(self.resolve(alert(account_ref="ACC-999999"), data), [])
+        self.assertEqual(self.resolve(alert(email="nobody@mail.example"), data), [])
         self.assertEqual(self.resolve(alert(), data), [["CUS-000001"]])
 
     def test_link_to_nothing_warns(self):
