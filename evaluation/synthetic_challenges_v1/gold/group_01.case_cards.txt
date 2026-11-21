@@ -1,77 +1,77 @@
-01. 完整生日对比
-检查目标：识别明显年份矛盾
-预期：DIFFERENT_ENTITY / DOB_MISMATCH
-政策依据：客户有效核验生日为1984年，名单所有生日为1960年，年份差超过1年。
-决定性证据：CUS-710011, KYC-D01011, H-F00101#dobs
+01. Full date-of-birth comparison
+Check: recognise a clear year contradiction
+Expected: DIFFERENT_ENTITY / DOB_MISMATCH
+Policy basis: the customer's verified date of birth is in 1984; every birth date on the hit is 1960, more than 1 year apart.
+Deciding evidence: CUS-710011, KYC-D01011, H-F00101#dobs
 
-02. 对象类型
-检查目标：区分个人与公司
-预期：DIFFERENT_ENTITY / ENTITY_TYPE_MISMATCH
-政策依据：客户是个人，命中对象是公司，类型明确矛盾。
-决定性证据：CUS-710021, H-F00102#entity_type
+02. Entity type
+Check: tell a person from a company
+Expected: DIFFERENT_ENTITY / ENTITY_TYPE_MISMATCH
+Policy basis: the customer is a person and the hit is a company, a clear type contradiction.
+Deciding evidence: CUS-710021, H-F00102#entity_type
 
-03. 国家集合
-检查目标：完整国家集合不相交
-预期：DIFFERENT_ENTITY / LOCATION_MISMATCH
-政策依据：客户仅与英国相关，名单仅与加拿大相关，且不存在姓名和生日共同一致的例外。
-决定性证据：CUS-710031, KYC-D01031, H-F00103#countries
+03. Country sets
+Check: complete country sets that do not overlap
+Expected: DIFFERENT_ENTITY / LOCATION_MISMATCH
+Policy basis: the customer is linked only to the United Kingdom and the hit only to Canada, and the name-and-date-of-birth exception does not apply.
+Deciding evidence: CUS-710031, KYC-D01031, H-F00103#countries
 
-04. 核验姓名
-检查目标：使用法定姓名核对全部别名
-预期：DIFFERENT_ENTITY / NAME_MISMATCH_VERIFIED
-政策依据：有效核验的客户法定姓名与名单姓名不一致，名单未提供相符别名。
-决定性证据：CUS-710041, KYC-D01041, H-F00104#name
+04. Verified name
+Check: compare the legal name against every alias
+Expected: DIFFERENT_ENTITY / NAME_MISMATCH_VERIFIED
+Policy basis: the customer's verified legal name does not agree with the hit's name, and the hit gives no agreeing alias.
+Deciding evidence: CUS-710041, KYC-D01041, H-F00104#name
 
-05. 死亡与筛查日期
-检查目标：按筛查日期判断
-预期：DIFFERENT_ENTITY / DECEASED
-政策依据：名单死亡日期早于2026-11-21的筛查日期，符合政策死亡排除规则。
-决定性证据：CUS-710051, H-F00105#deceased_date, A-E00105
+05. Death and screening dates
+Check: judge against the screening date
+Expected: DIFFERENT_ENTITY / DECEASED
+Policy basis: the hit's date of death is before the 2026-11-21 screening date, which meets the policy's deceased rule.
+Deciding evidence: CUS-710051, H-F00105#deceased_date, A-E00105
 
-06. 完整一致
-检查目标：完整姓名生日国家一致
-预期：SAME_ENTITY / NAME_DOB_LOCATION_MATCH
-政策依据：客户与名单姓名、完整生日和英国关联均一致，无矛盾。
-决定性证据：CUS-710061, KYC-D01061, H-F00106#dobs
+06. Full agreement
+Check: name, full date of birth and country all agree
+Expected: SAME_ENTITY / NAME_DOB_LOCATION_MATCH
+Policy basis: the customer and the hit agree on name, full date of birth and the United Kingdom link, with no contradiction.
+Deciding evidence: CUS-710061, KYC-D01061, H-F00106#dobs
 
-07. 姓名顺序
-检查目标：姓名部分顺序不影响一致
-预期：SAME_ENTITY / NAME_DOB_LOCATION_MATCH
-政策依据：姓名部分相同但顺序颠倒，生日国家一致。
-决定性证据：CUS-710071, KYC-D01071, H-F00107#dobs
+07. Name order
+Check: the order of name parts does not affect agreement
+Expected: SAME_ENTITY / NAME_DOB_LOCATION_MATCH
+Policy basis: the name parts are the same in reverse order; date of birth and country agree.
+Deciding evidence: CUS-710071, KYC-D01071, H-F00107#dobs
 
-08. 昵称变体
-检查目标：采用明确的姓名变体表
-预期：SAME_ENTITY / NAME_DOB_LOCATION_MATCH
-政策依据：Tony和Anthony在合成变体表中同组，姓氏、生日和国家一致。
-决定性证据：CUS-710081, KYC-D01081, H-F00108#dobs
+08. Nickname variant
+Check: use the explicit name-variant table
+Expected: SAME_ENTITY / NAME_DOB_LOCATION_MATCH
+Policy basis: Tony and Anthony are in the same group of the synthetic variant table; surname, date of birth and country agree.
+Deciding evidence: CUS-710081, KYC-D01081, H-F00108#dobs
 
-09. 公司法律形式
-检查目标：忽略公司的法律形式
-预期：SAME_ENTITY / NAME_LOCATION_MATCH
-政策依据：公司名称实质部分与国家一致，Ltd与AB是法律形式，无其他矛盾。
-决定性证据：CUS-710091, KYC-D01091, H-F00109#dobs
+09. Company legal forms
+Check: ignore a company's legal form
+Expected: SAME_ENTITY / NAME_LOCATION_MATCH
+Policy basis: the substantive company name and the country agree; Ltd and AB are legal forms, and nothing else contradicts.
+Deciding evidence: CUS-710091, KYC-D01091, H-F00109#dobs
 
-10. 缺失生日
-检查目标：不能把缺失当成不同
-预期：REVIEW / INSUFFICIENT_DATA
-政策依据：姓名国家相符，但个人名单没有生日，没有足够证据确认或排除。
-决定性证据：CUS-710101, KYC-D010A1, H-F0010A#dobs
+10. Missing date of birth
+Check: missing must not be treated as different
+Expected: REVIEW / INSUFFICIENT_DATA
+Policy basis: name and country agree, but the individual hit has no date of birth, so there is not enough evidence to confirm or clear.
+Deciding evidence: CUS-710101, KYC-D010A1, H-F0010A#dobs
 
-11. 国家例外
-检查目标：姓名生日一致优先触发复核
-预期：REVIEW / INSUFFICIENT_DATA
-政策依据：姓名和生日一致而国家不同，政策明确要求复核，不能按国家排除。
-决定性证据：CUS-710111, KYC-D010B1, H-F0010B#dobs
+11. Country exception
+Check: name and date of birth agreeing sends a country difference to review
+Expected: REVIEW / INSUFFICIENT_DATA
+Policy basis: name and date of birth agree but the countries differ; the policy requires review and does not allow a location clear.
+Deciding evidence: CUS-710111, KYC-D010B1, H-F0010B#dobs
 
-12. 相邻年份
-检查目标：区分不一致与硬矛盾
-预期：REVIEW / INSUFFICIENT_DATA
-政策依据：出生年相差1年，不满足一致，也不满足超过1年的生日矛盾，其他信息不能定论。
-决定性证据：CUS-710121, KYC-D010C1, H-F0010C#dobs
+12. Adjacent years
+Check: tell "not agreeing" from a hard contradiction
+Expected: REVIEW / INSUFFICIENT_DATA
+Policy basis: the birth years are 1 year apart, which is neither agreement nor a contradiction of more than 1 year; nothing else settles it.
+Deciding evidence: CUS-710121, KYC-D010C1, H-F0010C#dobs
 
-13. 占位姓名
-检查目标：真实姓名部分不足
-预期：REVIEW / INSUFFICIENT_DATA
-政策依据：客户姓名没有两个真实姓名部分，不可据此确认，也没有其他排除依据。
-决定性证据：CUS-710131, KYC-D010D1, H-F0010D#dobs
+13. Placeholder name
+Check: too few real name parts
+Expected: REVIEW / INSUFFICIENT_DATA
+Policy basis: the customer's name lacks two real name parts, so it can neither confirm nor clear, and nothing else clears the hit.
+Deciding evidence: CUS-710131, KYC-D010D1, H-F0010D#dobs

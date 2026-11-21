@@ -1,77 +1,77 @@
-01. 类别干扰
-检查目标：忽略同国但不同类别的同名者
-预期：DIFFERENT_ENTITY / DOB_MISMATCH
-政策依据：音乐人的1984年不能采用；匹配类别和国家的名单对象生于1960年，与客户矛盾。
-决定性证据：CUS-740011, KYC-D04011, SR-SYN-4-01-2
+01. Category distractor
+Check: ignore a namesake in the same country but a different category
+Expected: DIFFERENT_ENTITY / DOB_MISMATCH
+Policy basis: the musician's 1984 must not be used; the listed person matching the category and country was born in 1960, which contradicts the customer.
+Deciding evidence: CUS-740011, KYC-D04011, SR-SYN-4-01-2
 
-02. 国家干扰
-检查目标：忽略其他国家的同类同名者
-预期：DIFFERENT_ENTITY / DOB_MISMATCH
-政策依据：名单仅与英国相关，尼日利亚同名者不采信；英国有效结果给出1960年生日，矛盾成立。
-决定性证据：CUS-740021, KYC-D04021, SR-SYN-4-02-2
+02. Country distractor
+Check: ignore a same-category namesake in another country
+Expected: DIFFERENT_ENTITY / DOB_MISMATCH
+Policy basis: the hit is linked only to the United Kingdom, so the Nigerian namesake is not used; the valid UK result gives a date of birth in 1960, a contradiction.
+Deciding evidence: CUS-740021, KYC-D04021, SR-SYN-4-02-2
 
-03. 别名与生日
-检查目标：姓名一致不消除独立生日矛盾
-预期：DIFFERENT_ENTITY / DOB_MISMATCH
-政策依据：别名与客户姓名一致，但名单全部生日为1960年，仍与客户1984年明确矛盾。
-决定性证据：CUS-740031, KYC-D04031, H-F00403#dobs
+03. Alias and date of birth
+Check: an agreeing name does not cancel a separate date-of-birth contradiction
+Expected: DIFFERENT_ENTITY / DOB_MISMATCH
+Policy basis: an alias agrees with the customer's name, but every date of birth on the hit is 1960, which clearly contradicts the customer's 1984.
+Deciding evidence: CUS-740031, KYC-D04031, H-F00403#dobs
 
-04. 占位别名
-检查目标：占位值不能制造姓名一致
-预期：DIFFERENT_ENTITY / NAME_MISMATCH_VERIFIED
-政策依据：占位别名不算真实姓名，客户核验姓名与名单真实姓名不符。
-决定性证据：CUS-740041, KYC-D04041, H-F00404#name, H-F00404#aliases
+04. Placeholder alias
+Check: a placeholder must not create name agreement
+Expected: DIFFERENT_ENTITY / NAME_MISMATCH_VERIFIED
+Policy basis: the placeholder alias is not a real name, and the customer's verified name does not agree with the hit's real names.
+Deciding evidence: CUS-740041, KYC-D04041, H-F00404#name, H-F00404#aliases
 
-05. 非地址字段中的地点
-检查目标：国籍字段也可能是城市加国家
-预期：DIFFERENT_ENTITY / LOCATION_MISMATCH
-政策依据：国籍字段地点表达明确给出加拿大，客户仅与英国相关，且名单没有生日一致例外。
-决定性证据：CUS-740051, KYC-D04051, H-F00405#nationality
+05. A place outside the address fields
+Check: the nationality field can also hold a city and country
+Expected: DIFFERENT_ENTITY / LOCATION_MISMATCH
+Policy basis: the place in the nationality field clearly gives Canada; the customer is linked only to the United Kingdom, and the hit has no agreeing date of birth for the exception.
+Deciding evidence: CUS-740051, KYC-D04051, H-F00405#nationality
 
-06. 相符别名
-检查目标：主姓名不同不能忽略有效别名
-预期：SAME_ENTITY / NAME_DOB_LOCATION_MATCH
-政策依据：虽然主姓名不同，但有效别名与客户核验姓名一致，生日国家也一致。
-决定性证据：CUS-740061, KYC-D04061, H-F00406#dobs
+06. Agreeing alias
+Check: a different main name must not hide a valid alias
+Expected: SAME_ENTITY / NAME_DOB_LOCATION_MATCH
+Policy basis: the main name differs, but a valid alias agrees with the customer's verified name, and date of birth and country agree.
+Deciding evidence: CUS-740061, KYC-D04061, H-F00406#dobs
 
-07. 重音与顺序
-检查目标：重音和顺序不应制造姓名矛盾
-预期：SAME_ENTITY / NAME_DOB_LOCATION_MATCH
-政策依据：忽略重音大小写并比较姓名部分后相符，生日国家一致。
-决定性证据：CUS-740071, KYC-D04071, H-F00407#dobs
+07. Accents and order
+Check: accents and order must not create a name contradiction
+Expected: SAME_ENTITY / NAME_DOB_LOCATION_MATCH
+Policy basis: ignoring accents and case and comparing name parts, the names agree; date of birth and country agree.
+Deciding evidence: CUS-740071, KYC-D04071, H-F00407#dobs
 
-08. 公司名称变形
-检查目标：公司实质名称部分一致
-预期：SAME_ENTITY / NAME_LOCATION_MATCH
-政策依据：忽略公司法律形式与名称部分顺序，实质名称和国家一致，无独立矛盾。
-决定性证据：CUS-740081, KYC-D04081, H-F00408#dobs
+08. Company name variant
+Check: the substantive company name parts agree
+Expected: SAME_ENTITY / NAME_LOCATION_MATCH
+Policy basis: ignoring the legal form and the order of name parts, the substantive name and the country agree, with no separate contradiction.
+Deciding evidence: CUS-740081, KYC-D04081, H-F00408#dobs
 
-09. 领地与代码
-检查目标：保留领地独立性并识别代码
-预期：SAME_ENTITY / NAME_DOB_LOCATION_MATCH
-政策依据：HK与Hong Kong是同一领地表达，客户和名单姓名生日相符，不能错误映射到中国内地。
-决定性证据：CUS-740091, KYC-D04091, H-F00409#dobs
+09. Territory and code
+Check: keep territories separate and recognise codes
+Expected: SAME_ENTITY / NAME_DOB_LOCATION_MATCH
+Policy basis: HK and Hong Kong are the same territory; the customer's and the hit's names and dates of birth agree, and Hong Kong must not be mapped to mainland China.
+Deciding evidence: CUS-740091, KYC-D04091, H-F00409#dobs
 
-10. 未识别国家
-检查目标：部分国家不能被静默删除
-预期：REVIEW / INSUFFICIENT_DATA
-政策依据：一个国家值无法可靠识别，可能影响国家交集；没有生日，不能证明所有国家均不同或确认身份。
-决定性证据：CUS-740101, KYC-D040A1, H-F0040A#dobs
+10. Unrecognised country
+Check: a partly unreadable country set must not be silently trimmed
+Expected: REVIEW / INSUFFICIENT_DATA
+Policy basis: one country value cannot be reliably recognised and may affect the overlap; with no date of birth, it cannot be shown that every country differs, nor can identity be confirmed.
+Deciding evidence: CUS-740101, KYC-D040A1, H-F0040A#dobs
 
-11. 无效生日
-检查目标：非法日历日期不是矛盾依据
-预期：REVIEW / INSUFFICIENT_DATA
-政策依据：2月31日不是合法日期，应视为不可用信息而非生日矛盾，其他事实不足以定论。
-决定性证据：CUS-740111, KYC-D040B1, H-F0040B#dobs
+11. Invalid date of birth
+Check: an impossible calendar date is not grounds for a contradiction
+Expected: REVIEW / INSUFFICIENT_DATA
+Policy basis: 31 February is not a valid date and counts as unusable information, not a date-of-birth contradiction; the other facts do not settle it.
+Deciding evidence: CUS-740111, KYC-D040B1, H-F0040B#dobs
 
-12. 多个近邻年份
-检查目标：所有日期既未一致也未硬矛盾
-预期：REVIEW / INSUFFICIENT_DATA
-政策依据：两个可能年份都与1984年相差1年，没有一致年份，也没有超过1年的硬矛盾，应复核。
-决定性证据：CUS-740121, KYC-D040C1, H-F0040C#dobs
+12. Several adjacent years
+Check: no date agrees and none is a hard contradiction
+Expected: REVIEW / INSUFFICIENT_DATA
+Policy basis: both possible years are 1 year from 1984; no year agrees and none is more than 1 year apart, so it needs review.
+Deciding evidence: CUS-740121, KYC-D040C1, H-F0040C#dobs
 
-13. 例外与无关搜索
-检查目标：结构化日期优先且国家例外仍适用
-预期：REVIEW / INSUFFICIENT_DATA
-政策依据：结构化姓名生日与客户一致而国家不同，必须复核；其他国家音乐人的生日不得覆盖名单结构化生日。
-决定性证据：CUS-740131, KYC-D040D1, H-F0040D#dobs
+13. Exception and an unrelated search
+Check: structured dates come first, and the country exception still applies
+Expected: REVIEW / INSUFFICIENT_DATA
+Policy basis: the structured name and date of birth agree with the customer but the countries differ, so it must be reviewed; a musician in another country must not override the hit's structured date of birth.
+Deciding evidence: CUS-740131, KYC-D040D1, H-F0040D#dobs

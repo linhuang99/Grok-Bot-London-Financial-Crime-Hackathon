@@ -53,3 +53,7 @@ Never read `gold/` from the submitted classification program.
 - Record the code commit, all group scores, unsafe clearances and mistakes. Do not report only the best group.
 
 The four groups keep their inputs and answers separate; the original 50 practice labels remain the development set. Groups 1 and 4 share one repeated synthetic name, but no customer or business records. The gold answers should be reviewed independently by a teammate; the score on the unseen official test set remains unknown.
+
+## Translation note
+
+The case cards, the gold `reference_reason` texts and the manifest titles were translated from Chinese to English after the sets were frozen. Only that wording changed: every decision, reason code, customer record, evidence ID and input file is identical, and `FROZEN_INPUT_AND_GOLD_SHA256.json` records the checksums of the translated files.
