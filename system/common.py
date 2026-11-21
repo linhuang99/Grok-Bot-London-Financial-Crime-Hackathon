@@ -72,6 +72,29 @@ def parse_date(text):
         return None
 
 
+_MONTH_WORD = r'(?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept|Sep|Oct|Nov|Dec)\.?'
+_DAY_WORD = r'\d{1,2}(?:st|nd|rd|th)?'
+_DATE_IN_TEXT = re.compile(
+    r'(?<![\w/-])(?:\d{4}-\d{1,2}-\d{1,2}|\d{1,2}/\d{1,2}/\d{4}|'
+    r'%s %s,? \d{4}|%s %s,? \d{4}|%s \d{4})(?![\w/-])' % (_DAY_WORD, _MONTH_WORD, _MONTH_WORD, _DAY_WORD, _MONTH_WORD),
+    re.IGNORECASE)
+
+
+def find_dates(text):
+    """Every date written in free text, as (the text matched, parsed date), in reading order.
+
+    Formats are the ones parse_date reads: 1990-05-04, 04/05/1990, 4 May 1990,
+    May 4, 1990 and May 1990. A bare year is not taken as a date in free text.
+    """
+    found = []
+    for match in _DATE_IN_TEXT.finditer(text if isinstance(text, str) else ''):
+        raw = match.group(0).replace('.', '')
+        parsed = parse_date(raw)
+        if parsed:
+            found.append((match.group(0), parsed))
+    return found
+
+
 def dates_agree(a, b):
     """True when two parsed dates are equal in every part both give.
 

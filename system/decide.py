@@ -105,7 +105,8 @@ def _decide_person(alert, hit, person, facts, data):
 
     # --- Agreement: confirm only when nothing above contradicted.
     shared = customer_countries & hit_countries
-    if not company and matched_name and agreeing_births and field_is_complete(customer, "births"):
+    names_complete = field_is_complete(customer, "names")
+    if not company and matched_name and agreeing_births and names_complete and field_is_complete(customer, "births"):
         disjoint = customer_countries and hit_countries and not shared
         if not disjoint:
             code = "NAME_DOB_LOCATION_MATCH" if shared else "NAME_DOB_MATCH"
@@ -115,7 +116,7 @@ def _decide_person(alert, hit, person, facts, data):
                     "with the hit's name %s." % (_show(dob["value"]), dob["source"], _births(facts), where, legal,
                                                  matched_name),
                     _unique([rid, dob["source"]] + _search_sources(agreeing_births)))
-    if company and matched_name and shared:
+    if company and matched_name and shared and names_complete:
         return ("SAME_ENTITY", "NAME_LOCATION_MATCH",
                 "Both the company and the hit are linked to %s. The customer's name %s agrees with the hit's name %s."
                 % (_join(shared), legal, matched_name),

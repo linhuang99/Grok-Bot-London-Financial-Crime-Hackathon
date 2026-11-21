@@ -166,6 +166,28 @@ class DevData(unittest.TestCase):
                                  max(approved, key=lambda c: c["checked_at"])["check_id"])
         self.assertEqual(cases, 1684)
 
+    def test_kyc_notes_read_into_checks(self):
+        from notes import is_kyc_note, kyc_check
+        email_owner = {c["email"]: c for c in self.data["customers"]}
+        checks = [(kyc_check(n), email_owner[n["requester_email"]]) for n in self.data["notes"] if is_kyc_note(n)]
+        self.assertEqual(len(checks), 22575)
+        # The 38 without a name carry placeholders ("N/A", "0000"): no usable name is correct.
+        self.assertEqual(sum(c["verified_name"] is None for c, _ in checks), 38)
+        dobs = [(parse_date(c["verified_dob"]), parse_date(r["dob"])) for c, r in checks]
+        self.assertEqual(sum(a is None for a, _ in dobs), 0)
+        self.assertEqual(sum(a != b for a, b in dobs if b), 18)  # verified dates that overrule a recorded one
+
+    def test_note_evidence_of_linked_labels_is_among_our_sources(self):
+        people, missing = self.resolve_all(), []
+        alerts = {a["alert_id"]: a for a in self.data["alerts"]}
+        for label in self.labels():
+            if not linked_records(alerts[label["alert_id"]], self.data):
+                continue
+            p = person(people[label["alert_id"]][0], self.data)
+            sources = {f["source"] for f in [p["verified_name"], p["dob"]] + p["countries"] if f}
+            missing += [(label["hit_id"], e) for e in label["evidence"] if e.startswith("NOTE-") and e not in sources]
+        self.assertEqual(missing, [])
+
 
 if __name__ == "__main__":
     unittest.main()

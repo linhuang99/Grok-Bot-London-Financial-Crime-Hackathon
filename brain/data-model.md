@@ -70,7 +70,12 @@ customers.email ──> notes.requester_email
 - The verified date of birth differs from the record's for 21 customers. Verified dates of birth are never missing.
 - Company customers have a "registry extract" check: verified company name, incorporation date and country, no document number.
 
-## Notes
+## Notes (checked during A5)
+
+- **A KYC note is the only verified identity for 22,575 customers**; none of them also has an approved table check. Every KYC note records a successful check.
+- Read by `notes.kyc_check`: the date of birth agrees with the record for all but 18 (verified dates that overrule the record); 38 names hold placeholders ("N/A", "0000") and stay unread.
+- 3,067 non-KYC notes mention a country, essentially all "lived and worked in X", in very varied wording.
+
 
 - `channel`: kyc (22,575), phone, app, email. KYC-channel notes can record an identity verification done outside the KYC provider table (name, dob, document country), which counts like an approved check.
 - Other notes can mention where the customer used to live, which adds countries tied to them.

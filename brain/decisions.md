@@ -2,6 +2,9 @@
 
 Newest first. One line for the choice, one for why.
 
+**21 Nov: KYC notes are read by pieces, not sentences: earliest date = date of birth, latest = check date, the one run of capitalised words that is not a country = the name. Every country a non-KYC note mentions counts as lived in.**
+22,575 KYC notes come in about 20,000 wordings and the unseen set words them differently again; the pieces rule reads all of them (38 have placeholder names, correctly unread). A residence-word filter would drop 113 real residence countries, and a dropped country can invent a location mismatch.
+
 **21 Nov: Integrate main into laneB and bridge the existing customer contract instead of overwriting it.**
 User authorised conflict repair on laneB. Preserve Lane A shared helpers and producer code; share search normalisation while retaining duplicate-source conflict checks. A separate Lane B adapter adds conservative V1 quality with explicit upstream-coverage attestation. Unreadable scripts block name clears until transliteration is available.
 

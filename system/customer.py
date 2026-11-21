@@ -7,8 +7,9 @@ identity check gives the legal name and date of birth, and rejected or expired
 checks are not evidence. Without one, the customer record's own (declared)
 facts are used, and their CUS source shows it.
 """
-from common import countries_in_text, country_name, fold, parse_date
+from common import country_name, fold, parse_date
 from data import id_key, phone_key, text_key
+from notes import is_kyc_note, kyc_check, lived_in
 
 
 def person(record_ids, data):
@@ -38,7 +39,7 @@ def person(record_ids, data):
                     for r in records for field in ("full_name", "preferred_name", "login_name") if _text(r.get(field))]
     legal_name = verified_name or (record_names[0] if record_names else None)
 
-    countries, unreadable = _countries(records, checks)
+    countries, unreadable = _countries(records, checks, data)
     return {
         "record_ids": [r["record_id"] for r in records],
         "record_id": records[0]["record_id"],
@@ -49,25 +50,25 @@ def person(record_ids, data):
         "dob": _dob(verified, records),
         "countries": countries,
         "unreadable_countries": unreadable,
-        "complete_fields": complete_fields(records, verified is not None, data),
+        "complete_fields": complete_fields(records, verified, data),
     }
 
 
 def complete_fields(records, verified, data):
     """Fields of this person that Lane A has fully investigated, for quality.adapt_person.
 
-    Claimed conservatively, because a clear on an incomplete field can be unsafe:
-    - names, births: verified by an approved table check, or no KYC note exists
-      that could hold a newer verified identity (KYC notes are read in A5);
-    - countries: no note mentions a country (notes are read in A5) and no other
-      record could belong to the same person (records are merged in A7).
+    Claimed conservatively, because a clear on an incomplete field can be unsafe.
+    Table checks and notes are all read, so a field is incomplete only when:
+    - names: the latest approved check's name could not be read;
+    - births: the latest approved check's date of birth could not be read;
+    - countries: another record may belong to the same person (merged in A7).
     """
-    notes = [n for r in records for n in data["notes_by_email"].get(text_key(r.get("email")), [])]
-    kyc_notes = [n for n in notes if (n.get("channel") or "").strip().lower() == "kyc"]
     fields = ["entity_type"]
-    if verified or not kyc_notes:
-        fields += ["names", "births"]
-    if not any(countries_in_text(n.get("text") or "") for n in notes) and not _may_have_other_records(records, data):
+    if verified is None or _text(verified.get("verified_name")):
+        fields.append("names")
+    if verified is None or parse_date(verified.get("verified_dob")):
+        fields.append("births")
+    if not _may_have_other_records(records, data):
         fields.append("countries")
     return fields
 
@@ -94,9 +95,21 @@ def _text(value):
     return value.strip() if isinstance(value, str) and value.strip() else None
 
 
+def _notes(records, data):
+    """Notes filed under the records' own emails, without repeats. Never another customer's."""
+    found, seen = [], set()
+    for record in records:
+        for note in data["notes_by_email"].get(text_key(record.get("email")), []):
+            if note.get("note_id") not in seen:
+                seen.add(note.get("note_id"))
+                found.append(note)
+    return found
+
+
 def _approved_checks(records, data):
-    """Approved identity checks reachable from the records: record -> accounts -> onboarding -> checks."""
-    checks, seen = [], set()
+    """Approved identity checks: KYC table rows (record -> accounts -> onboarding -> checks) and KYC notes."""
+    checks = [kyc_check(n) for n in _notes(records, data) if is_kyc_note(n) and n.get("note_id")]
+    seen = {c["check_id"] for c in checks}
     for record in records:
         record_id = id_key(record["record_id"])
         for account in data["accounts_by_customer"].get(record_id, []):
@@ -126,10 +139,17 @@ def _dob(verified, records):
     return None
 
 
-def _countries(records, checks):
-    """Countries tied to the customer, and the values that could not be read as a country."""
+def _countries(records, checks, data):
+    """Countries tied to the customer, and the values that could not be read as a country.
+
+    Records' residence and nationality, every approved document's country, and
+    every country a note says the customer lived in.
+    """
     values = [(r.get(field), r["record_id"]) for r in records for field in ("residence_country", "nationality")]
     values += [(c.get("document_country"), c["check_id"]) for c in checks]
+    values += [(country, c["check_id"]) for c in checks for country in c.get("note_countries", [])]
+    values += [(country, n["note_id"]) for n in _notes(records, data)
+               if not is_kyc_note(n) and n.get("note_id") for country in lived_in(n)]
     countries, unreadable = [], []
     for value, source in values:
         if not _text(value):
