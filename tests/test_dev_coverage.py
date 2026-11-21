@@ -121,7 +121,8 @@ class DevData(unittest.TestCase):
         people = [p for ps in self.resolve_all().values() for p in ps]
         start = time.perf_counter()
         persons = [person(p, self.data) for p in people]
-        self.assertEqual(len(persons), 294)
+        self.assertTrue(all(self.resolve_all().values()))  # every alert finds at least one customer
+        self.assertEqual(len(persons), 512)
         self.assertLess(time.perf_counter() - start, 5)
         self.assertTrue(all(p["legal_name"] for p in persons))
 
@@ -134,12 +135,11 @@ class DevData(unittest.TestCase):
                 if not cited:
                     continue
                 start = re.match(r"(CUS-\d+)", step)
-                if not start and not people[label["alert_id"]]:
-                    continue  # an unlinked alert: its customer is found in A6
-                ids = [start.group(1)] if start else people[label["alert_id"]][0]
-                self.assertEqual(person(ids, self.data)["verified_name"]["source"], cited.group(1), label["hit_id"])
+                candidates = [[start.group(1)]] if start else people[label["alert_id"]]
+                sources = [(person(ids, self.data)["verified_name"] or {}).get("source") for ids in candidates]
+                self.assertIn(cited.group(1), sources, label["hit_id"])
                 checked += 1
-        self.assertEqual(checked, 30)  # the other 2 paths are unlinked alerts (A6)
+        self.assertEqual(checked, 32)
 
     def test_kyc_evidence_of_linked_labels_is_among_our_sources(self):
         people, missing = self.resolve_all(), []
@@ -187,6 +187,21 @@ class DevData(unittest.TestCase):
             sources = {f["source"] for f in [p["verified_name"], p["dob"]] + p["countries"] if f}
             missing += [(label["hit_id"], e) for e in label["evidence"] if e.startswith("NOTE-") and e not in sources]
         self.assertEqual(missing, [])
+
+    def test_scorecard_unlinked_practice_labels_find_their_customer(self):
+        people, wrong = self.resolve_all(), []
+        alerts = {a["alert_id"]: a for a in self.data["alerts"]}
+        unlinked = [x for x in self.labels() if not linked_records(alerts[x["alert_id"]], self.data)]
+        for label in unlinked:
+            found = [r for p in people[label["alert_id"]] for r in p]
+            if label["customer_record_ids"] == ["AMBIGUOUS"]:
+                ok = len(people[label["alert_id"]]) > 1
+            else:
+                ok = bool(found) and set(found) <= set(label["customer_record_ids"])
+            if not ok:
+                wrong.append(label["hit_id"])
+        self.assertEqual(len(unlinked), 12)
+        self.assertEqual(wrong, [])
 
 
 if __name__ == "__main__":

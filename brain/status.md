@@ -13,6 +13,7 @@ Update this when you claim or finish a task, or when the score changes.
 | 21 Nov, 14:40 (A4) | 0.0 | 0 | `customer.person` picks the exact latest approved check on 30/30 label paths; not yet called by `run`; 126 unit tests pass |
 | **21 Nov, 15:05 (first integrated run)** | **39.8** | **0** | 26/50 right; reason code and customer record 100% on right decisions. All 819: 155 clears, 42 confirms, 622 REVIEW. Same output every run, from `system/`, without practice labels |
 | 21 Nov, 15:30 (A5 notes) | 50.0 | 0 | 30/50 right; KYC notes are the verified identity of 22,575 customers; 197 unit tests pass |
+| 21 Nov, 15:10 (A6 unlinked search) | 70.4 | 0 | 38/50 right; every one of the 440 alerts finds a customer; 206 unit tests pass |
 
 ## Tasks
 
@@ -21,7 +22,7 @@ Plan and times: `brain/roadmap.md`. Edit only your own rows.
 | Task | Owner | State |
 |---|---|---|
 | Repo scaffold, `brain/`, agent instructions, roadmap | garyyehhh | done |
-| **Lane A** (customer side): checkpoints A2-A7 in `brain/roadmap.md` | garyyehhh | A5 done, A6 next |
+| **Lane A** (customer side): checkpoints A2-A7 in `brain/roadmap.md` | garyyehhh | A6 done, A7 next |
 | `common.py` (dates, countries) | garyyehhh (from linhuang) | Done; fixes 2 and 4 below done, 3 and 5 pending |
 | `names.py` (principle 8, with tests) | linhuang | V1 extraction and compatibility tests complete; shared decision integration pending |
 | `hitfacts.py` (names, dobs, countries, reports, death) | linhuang | V1 extraction and compatibility tests complete; shared decision integration pending |

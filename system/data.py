@@ -12,7 +12,7 @@ import os
 import re
 import sys
 
-from common import fold
+from common import fold, parse_date
 
 REQUIRED = ("alerts", "hits")
 OPTIONAL = ("customers", "accounts", "onboarding", "kyc_checks", "notes", "search_results")
@@ -120,6 +120,7 @@ def load(data_dir):
     data["notes_by_email"] = _group(data["notes"], "requester_email", text_key)
     data["search_by_query"] = _group(data["search_results"], "query", _stored_query_key)
     data["customers_by_phone"] = _group(data["customers"], "phone", phone_key)
+    data["customers_by_birth_year"] = _group(data["customers"], "dob", _birth_year)
     data["customers_by_document"] = _document_owners(data)
     return data
 
@@ -202,6 +203,11 @@ def _document_owners(data):
                 if customer not in owners.setdefault(number, []):
                     owners[number].append(customer)
     return owners
+
+
+def _birth_year(dob):
+    parsed = parse_date(dob)
+    return parsed[0] if parsed else None
 
 
 def _stored_query_key(query):

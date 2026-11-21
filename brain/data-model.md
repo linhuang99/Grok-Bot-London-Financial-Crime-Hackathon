@@ -56,6 +56,8 @@ customers.email ──> notes.requester_email
 - 236 links lead to one record, and that record always fits the screened details. 58 alerts link to a joint account; in every one exactly one holder fits.
 - Practice labels cite `CUS`, `KYC`, `NOTE` and `SR` IDs as evidence, never account or applicant IDs.
 
+- 146 alerts have no link. Searching by the screened details (name must agree; dob, country, city and type must fit) finds a customer for all of them: one record for 102, several for 44. All 12 unlinked practice labels find their accepted customer; the two labelled AMBIGUOUS find several people.
+
 ## Accounts and KYC
 
 - **52 accounts have two holders** (joint accounts), one row per holder. Never assume one customer per account; pick the holder that fits the screened details.

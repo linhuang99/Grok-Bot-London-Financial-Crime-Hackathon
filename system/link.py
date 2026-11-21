@@ -5,9 +5,9 @@ a login or an email. resolve() follows every link to customer records. When
 the links lead to more than one record (a joint account), the screened
 details pick between them. A single linked record is the customer.
 
-An alert with no link, or with a link that leads nowhere, is searched for by
-its screened details (checkpoint A6); until then it resolves to nobody, which
-the decision turns into REVIEW.
+An alert with no link, or with a link that leads nowhere, is searched for:
+every record whose name agrees with the screened name and whose other details
+fit what was screened (checkpoint A6).
 """
 import re
 import sys
@@ -28,10 +28,30 @@ def resolve(alert, data):
         if _has_link(alert):
             print("link: warning: alert %s links to no customer; treated as unlinked" % alert.get("alert_id"),
                   file=sys.stderr)
-        return []  # unlinked: the screened-details search comes in A6
-    if len(records) > 1:
+        records = search(alert, data)
+    elif len(records) > 1:
         records = [r for r in records if fits_screened(alert, r, data)]
     return [[id_key(r["record_id"])] for r in records]
+
+
+def search(alert, data):
+    """Records that fit an alert without a working link, in file order (principle 2).
+
+    The screened name must agree with a record name; date of birth, country,
+    city and entity type, where screened, must fit too. Cheap checks run before
+    names, and a screened birth year narrows the records looked at.
+    """
+    screened = alert.get("customer") or {}
+    name = screened.get("name")
+    if not isinstance(name, str) or not name.strip():
+        return []  # nothing to search by: never guess a customer
+    dob = parse_date(screened.get("dob"))
+    candidates = data["customers_by_birth_year"].get(dob[0], []) if dob else data["customers"]
+    kind = screened.get("entity_type")
+    return [r for r in candidates
+            if (kind not in ("Individual", "Company") or r.get("entity_type") == kind)
+            and _dob_fits(screened, r) and _country_fits(screened, r) and _city_fits(screened, r)
+            and _name_fits(screened, r, data)]
 
 
 def linked_records(alert, data):

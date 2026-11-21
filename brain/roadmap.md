@@ -34,8 +34,8 @@ Small steps, each finished before the next starts. Done means: unit tests pass, 
 | A3 | Linked alerts: account, login, email; pick the joint holder that fits; record-resolution scorecard against the practice labels | `link.py` | done: 38/38 linked labels |
 | A4 | Person facts from records and approved KYC table checks | `customer.py` | done: 30/30 label check paths |
 | A5 | KYC notes and residence notes into facts | `notes.py` | done: score 39.8 -> 50.0 |
-| A6 | Unlinked alerts: search by the screened details | `link.py` | next |
-| A7 | Merge records into people (phone + dob, document number) | `link.py` | |
+| A6 | Unlinked alerts: search by the screened details | `link.py` | done: 12/12 unlinked labels; score 50.0 -> 70.4 |
+| A7 | Merge records into people (phone + dob, document number) | `link.py` | next |
 
 ## Sync points
 

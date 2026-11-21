@@ -76,6 +76,7 @@ names_agree(name_a, name_b, variants) -> bool   # dev/POLICY.md principle 8
 
 ```python
 resolve(alert, data) -> list[list[str]]   # people: each a list of customer record IDs; [] = not found
+search(alert, data) -> [records]          # A6: no link or a dead link: name must agree; dob, country, city, type must fit
 fits_screened(alert, record, data) -> bool  # principle 2 fit: name, dob, country, city; unknown never rules out
 ```
 

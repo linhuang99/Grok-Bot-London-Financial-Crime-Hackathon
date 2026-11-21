@@ -70,10 +70,10 @@ class FollowsLinks(LinkTest):
         data = self.data([customer("CUS-000001", "Maria Lopez")])
         self.assertEqual(self.resolve(alert(email=" CUS-000001@Mail.Example"), data), [["CUS-000001"]])
 
-    def test_link_to_nothing_or_no_link_finds_nobody_yet(self):
-        data = self.data([customer("CUS-000001", "Maria Lopez")])
-        self.assertEqual(self.resolve(alert(account_ref="ACC-999999"), data), [])
-        self.assertEqual(self.resolve(alert(), data), [])
+    def test_link_to_nothing_is_searched_like_no_link(self):
+        data = self.data([customer("CUS-000001", "Maria Lopez"), customer("CUS-000002", "Jorge Lopez", dob="1979-06-01")])
+        self.assertEqual(self.resolve(alert(account_ref="ACC-999999"), data), [["CUS-000001"]])
+        self.assertEqual(self.resolve(alert(), data), [["CUS-000001"]])
 
     def test_link_to_nothing_warns(self):
         data = self.data([customer("CUS-000001", "Maria Lopez")])
@@ -122,6 +122,44 @@ class JointAccounts(LinkTest):
         data = self.joint(customer("CUS-000002", "Maria Lopez"), customer("CUS-000001", "Maria Lopez"))
         self.assertEqual(self.resolve(alert(account_ref="ACC-000009"), data),
                          self.resolve(alert(account_ref="ACC-000009"), data))
+
+
+class SearchWithoutLink(LinkTest):
+    def test_name_must_agree(self):
+        data = self.data([customer("CUS-000001", "Jorge Lopez")])
+        self.assertEqual(self.resolve(alert(name="Maria Lopez"), data), [])
+
+    def test_nickname_and_typo_still_agree(self):
+        data = self.data([customer("CUS-000001", "John Smith", preferred_name="Jon Smith")])
+        self.assertEqual(self.resolve(alert(name="Jon Smyth", dob="1985-03-14"), data), [["CUS-000001"]])
+
+    def test_date_of_birth_country_and_city_must_fit(self):
+        data = self.data([customer("CUS-000001", "Maria Lopez", dob="1985-03-14"),
+                          customer("CUS-000002", "Maria Lopez", dob="1985-03-15"),
+                          customer("CUS-000003", "Maria Lopez", residence_country="FR", nationality="French"),
+                          customer("CUS-000004", "Maria Lopez", city="Seville", address="2 Calle Sol, Seville")])
+        self.assertEqual(self.resolve(alert(dob="1985-03-14", country="Spain", city="Madrid"), data), [["CUS-000001"]])
+
+    def test_entity_type_must_match(self):
+        data = self.data([customer("CUS-000001", "Lopez Trading", entity_type="Company")])
+        self.assertEqual(self.resolve(alert(name="Lopez Trading", dob=None, entity_type="Individual"), data), [])
+
+    def test_several_fitting_records_give_several_people(self):
+        data = self.data([customer("CUS-000002", "Maria Lopez"), customer("CUS-000001", "Maria Lopez")])
+        self.assertEqual(self.resolve(alert(), data), [["CUS-000002"], ["CUS-000001"]])
+
+    def test_year_only_screened_date_searches_that_year(self):
+        data = self.data([customer("CUS-000001", "Maria Lopez", dob="14/03/1985"),
+                          customer("CUS-000002", "Maria Lopez", dob="1986-01-01")])
+        self.assertEqual(self.resolve(alert(dob="1985"), data), [["CUS-000001"]])
+
+    def test_no_screened_dob_searches_everyone(self):
+        data = self.data([customer("CUS-000001", "Maria Lopez", dob="1990-01-01")])
+        self.assertEqual(self.resolve(alert(dob=None), data), [["CUS-000001"]])
+
+    def test_no_screened_name_finds_nobody(self):
+        data = self.data([customer("CUS-000001", "Maria Lopez")])
+        self.assertEqual(self.resolve(alert(name=None), data), [])
 
 
 class FitsScreened(LinkTest):
