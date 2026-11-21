@@ -1,5 +1,7 @@
 # Track 2: Same Person or Not?
 
+**Start with `AGENTS.md` and `brain/`**: the team's shared knowledge and the rules for humans and AI tools. Update `brain/` in the same commit as your change.
+
 For every screening hit, decide `DIFFERENT_ENTITY`, `SAME_ENTITY` or `REVIEW`, following `dev/POLICY.md`.
 
 Python 3 standard library only: no packages to install. Any language model call goes through OpenRouter with the key in `OPENROUTER_API_KEY`.
@@ -29,6 +31,7 @@ Evidence IDs may be record IDs from the data files, URLs, or a hit field written
 
 | Path | What |
 |---|---|
+| `AGENTS.md`, `brain/` | Rules and shared knowledge (`CLAUDE.md` and `.cursor/rules/` point AI tools here) |
 | `system/run` | Entry point: `system/run <data folder> <output file>` |
 | `output/dev.jsonl` | The system's predictions on the dev set |
 | `tests/` | Unit tests (`python3 -m unittest discover tests`) |

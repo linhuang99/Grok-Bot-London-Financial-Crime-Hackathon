@@ -1,0 +1,6 @@
+---
+description: Project rules and shared knowledge base
+alwaysApply: true
+---
+
+Read and follow `AGENTS.md` at the repo root before any change. It points to `brain/`, the team's shared knowledge, which you must read before working and update in the same commit as your change.
