@@ -28,7 +28,7 @@ Plan and times: `brain/roadmap.md`. Edit only your own rows.
 | `common.py` (dates, countries) | garyyehhh (from linhuang) | Done; fixes 2 and 4 below done, 3 and 5 pending |
 | `names.py` (principle 8, with tests) | linhuang | V1 extraction and compatibility tests complete; shared decision integration pending |
 | `hitfacts.py` (names, dobs, countries, reports, death) | linhuang | V1 extraction and compatibility tests complete; shared decision integration pending |
-| `decide.py` with reasons and evidence; `system/run` wired | garyyehhh | First version done (15:05); unit tests next |
+| `decide.py` with reasons and evidence; `system/run` wired | garyyehhh | Done; 27 unit tests at every rule's edge (16:00) |
 | `system/README.md` | linhuang | Pending final architecture and worked cases |
 | Reason quality pass | garyyehhh | 16:15-16:40 |
 | Final run, public repo, submission, video | both | 16:40-17:00 |
