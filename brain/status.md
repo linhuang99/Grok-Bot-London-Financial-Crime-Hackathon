@@ -73,3 +73,9 @@ Updated the Lane B README and shared approach to document the adapter, retained 
 ## Sync
 
 Command-line HTTPS credentials are unavailable. GitHub Desktop fetched origin; laneB and main matched their remote refs before integration. Merge target: origin/main at e149bae. Never force-push.
+
+## Synthetic challenge dataset upload
+
+- linhuang: published-package preparation in `evaluation/synthetic_challenges_v1/` on the separate `synthetic-test-sets` branch. 4 groups × 13 fully synthetic cases; frozen V1 inputs/gold preserved.
+- Inputs and gold are separate. Original participant data, workbook, validator, keys and local solver predictions are excluded. `results/` is ignored.
+- The package is a policy challenge/regression suite, not an independent hidden benchmark; one watchlist name is repeated across groups 01 and 04. Labels require independent policy review. No system code or predictions were changed by this packaging task.

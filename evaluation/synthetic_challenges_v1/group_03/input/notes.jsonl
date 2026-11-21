@@ -1,0 +1,2 @@
+{"channel": "kyc", "created_at": "2026-01-10", "note_id": "NOTE-SYN-3-04", "requester_email": "g3-case04-person1@example.invalid", "text": "An approved identity check on 2026-01-10 verified ENZO FERN (DOB 14 March 1960), document country United Kingdom."}
+{"channel": "kyc", "created_at": "2026-01-10", "note_id": "NOTE-SYN-3-08", "requester_email": "g3-case08-person1@example.invalid", "text": "An approved identity check on 2026-01-10 verified ORIN JUNIPER (DOB 14 March 1984), document country United Kingdom."}

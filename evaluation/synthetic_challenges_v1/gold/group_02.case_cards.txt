@@ -1,0 +1,77 @@
+01. 年龄推算
+检查目标：保留两个可能年份
+预期：DIFFERENT_ENTITY / DOB_MISMATCH
+政策依据：年龄表达给出1959或1960年，均与客户1984年相差超过1年。
+决定性证据：CUS-720011, KYC-D02011, H-F00201#profile_notes
+
+02. 未满16岁
+检查目标：最早政策格式报道日期
+预期：DIFFERENT_ENTITY / TEMPORAL_IMPOSSIBILITY
+政策依据：客户在2018-01-01报道时只有8岁，小于政策16岁门槛。
+决定性证据：CUS-720021, KYC-D02021, H-F00202#profile_notes
+
+03. 公司成立时间
+检查目标：成立晚于最早报道
+预期：DIFFERENT_ENTITY / TEMPORAL_IMPOSSIBILITY
+政策依据：公司在2022年才成立，不可能是2019年报道中的公司。
+决定性证据：CUS-720031, KYC-D02031, H-F00203#profile_notes
+
+04. 部分死亡日期
+检查目标：使用日期范围而非补造日月
+预期：DIFFERENT_ENTITY / DECEASED
+政策依据：即使取2019年最后一天，死亡仍早于2026年的筛查日期。
+决定性证据：CUS-720041, H-F00204#deceased_date, A-E00204
+
+05. 同年月不同日
+检查目标：生日细节明确矛盾
+预期：DIFFERENT_ENTITY / DOB_MISMATCH
+政策依据：双方年月相同，但完整日期的日分别为14和15，明确矛盾。
+决定性证据：CUS-720051, KYC-D02051, H-F00205#dobs
+
+06. 只有年份
+检查目标：部分日期可以与完整日期一致
+预期：SAME_ENTITY / NAME_DOB_LOCATION_MATCH
+政策依据：名单年份与客户完整生日相容，姓名国家也一致。
+决定性证据：CUS-720061, KYC-D02061, H-F00206#dobs
+
+07. 资料中的生日
+检查目标：从首段提取直接生日
+预期：SAME_ENTITY / NAME_DOB_LOCATION_MATCH
+政策依据：首段明确给出的生日与客户生日一致，姓名国家一致。
+决定性证据：CUS-720071, KYC-D02071, H-F00207#profile_notes
+
+08. 搜索中的年龄
+检查目标：筛选正确人物后推算
+预期：SAME_ENTITY / NAME_DOB_LOCATION_MATCH
+政策依据：合格搜索结果中目标人物27岁，可能出生于1984或1985年，其中1984与客户一致。
+决定性证据：CUS-720081, KYC-D02081, SR-SYN-2-08-1
+
+09. 多个候选生日
+检查目标：一个一致日期阻止生日排除
+预期：SAME_ENTITY / NAME_DOB_LOCATION_MATCH
+政策依据：名单明确允许多个生日，至少一个与客户完整生日一致，姓名国家一致且无独立矛盾。
+决定性证据：CUS-720091, KYC-D02091, H-F00209#dobs
+
+10. 证人的年龄
+检查目标：防止把其他人物年龄归给目标
+预期：REVIEW / INSUFFICIENT_DATA
+政策依据：25岁属于证人，并非目标人物。目标生日未知，姓名国家相符但不能定论。
+决定性证据：CUS-720101, SR-SYN-2-10-1
+
+11. 同句多人
+检查目标：不强行关联年龄与目标
+预期：REVIEW / INSUFFICIENT_DATA
+政策依据：两项年龄分别属于证人和律师，目标人物的生日仍未知。
+决定性证据：CUS-720111, SR-SYN-2-11-1
+
+12. 否定句
+检查目标：未说明生日不等于给出生日
+预期：REVIEW / INSUFFICIENT_DATA
+政策依据：资料明确没有提供目标年龄或生日，不能根据文字关键词补造日期。
+决定性证据：CUS-720121, KYC-D020C1, H-F0020C#dobs
+
+13. 年龄门槛边界
+检查目标：恰好16岁不是未满16岁
+预期：REVIEW / INSUFFICIENT_DATA
+政策依据：客户在报道日恰好16岁，不能按未满16岁排除；名单缺少生日，亦不足以确认。
+决定性证据：CUS-720131, KYC-D020D1, H-F0020D#profile_notes
