@@ -95,6 +95,12 @@ customers.email ──> notes.requester_email
 - 273 hits have dated reports in `profile_notes` of the form `According to ...; Month D, YYYY: ...`. Only this form counts as a dated report.
 - 117 hits are companies; for companies only `dobs` is an incorporation date.
 
+## Ages at a date (checked after the hit-side fixes)
+
+- Profile notes and search results state a hit's age at a date in many wordings: "a 30-year-old", "N year old", "aged N", "at the age of N", "he was 46.", "then 37,", "Fiorani, 52, who...", "interviewed 26, Maria Miller". Birth year = year - age - {1, 0}.
+- 16,877 of 16,882 search results hold exactly one date. Hit birth years now come from: structured `dobs` 152, profile notes 41, search results 69; 557 hits have none.
+- A structured sanction record ("Federal Register notice: Vol. 74, No. 11") nearly produced a false age: only text with exactly one age and one date counts, and "N, Name" needs a capitalised name.
+
 ## Search results
 
 - `query` is the name's lowercase words in alphabetical order, accents removed, **one-letter initials dropped** ("Mitchell, Charlee D." -> `charlee mitchell`) and letters such as `ł` dropped ("Paweł" -> `pawe`). Apostrophes split words ("O'Connor" -> `connor`). Company hits never have search results. Use `data.find_search_results`. Most results are about namesakes: a result is about the hit only if it describes the same kind of listing in a country tied to the hit (see `dev/POLICY.md` principle 5 for the phrases).

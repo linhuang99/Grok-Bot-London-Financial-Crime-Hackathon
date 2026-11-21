@@ -3,7 +3,7 @@
 No decisions, network calls, practice answers or inferred missing date parts.
 """
 import re
-from common import parse_date, country_parse_status, countries_in_text, fold
+from common import ages_at_dates, parse_date, country_parse_status, countries_in_text, fold
 from data import search_keys
 from names import name_parts
 
@@ -86,6 +86,13 @@ def _text_births(text, source, q):
             q.good('births')
         else:
             q.bad('births', 'INVALID_AGE_DATE', source, 'age_expression')
+    if not found:
+        # Other wordings of an age at a date ("a 30-year-old", "he was 46.",
+        # "Fiorani, 52, who..."), only when the text holds exactly one age and one date.
+        for age, date in ages_at_dates(text):
+            if date[0] - age - 1 > 0:
+                found += [_fact((date[0] - age - 1, None, None), source), _fact((date[0] - age, None, None), source)]
+                q.good('births')
     for marker in _MARKER.finditer(text):
         if not any(start <= marker.start() < end for start, end in covered):
             q.bad('births', 'UNSUPPORTED_BIRTH_EXPRESSION', source, 'birth_expression')
@@ -134,7 +141,8 @@ def _countries(hit, q):
     found = []; hid = hit['hit_id']
     for field in ('countries', 'nationality', 'citizenship', 'addresses', 'place_of_birth'):
         for value in _items(hit.get(field)):
-            status, country = country_parse_status(value, address=field in ('addresses', 'place_of_birth'))
+            # Every field can hold a full place ("Belgrade, Serbia"): read the country at its end.
+            status, country = country_parse_status(value, address=True)
             if status == 'PARSED':
                 found.append(_fact(country, hid + '#' + field)); q.good('countries')
             elif status == 'IGNORED':

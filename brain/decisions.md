@@ -2,6 +2,9 @@
 
 Newest first. One line for the choice, one for why.
 
+**21 Nov: Lane A fixed two hit-side bugs in `hitfacts.py`, agreed with linhuang: every country field is read as a place, and a text with exactly one age and one date gives two birth years (`common.ages_at_dates`).**
+`nationality` and `countries` hold places like "Belgrade, Serbia" (34 hits were flagged unrecognised, blocking location clears and search births). Profiles and search results state age in many wordings ("a 30-year-old", "he was 46.", "Fiorani, 52,"). Two dates or two ages are ambiguous and give nothing; numbers such as "Vol. 74, No. 11" or "was 4,600" are not ages (found by auditing every new birth year on dev, not just the labels).
+
 **21 Nov: KYC notes are read by pieces, not sentences: earliest date = date of birth, latest = check date, the one run of capitalised words that is not a country = the name. Every country a non-KYC note mentions counts as lived in.**
 22,575 KYC notes come in about 20,000 wordings and the unseen set words them differently again; the pieces rule reads all of them (38 have placeholder names, correctly unread). A residence-word filter would drop 113 real residence countries, and a dropped country can invent a location mismatch.
 

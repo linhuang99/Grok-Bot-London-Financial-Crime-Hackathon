@@ -212,6 +212,17 @@ class DevData(unittest.TestCase):
         self.assertEqual(len(labels), 13)
         self.assertEqual(wrong, [])
 
+    def test_hit_birth_years_and_countries_after_the_hit_side_fixes(self):
+        from hitfacts import hit_facts
+        sources, issues = {}, {}
+        for h in self.data["hits"]:
+            f = hit_facts(h, self.data)
+            sources[f["birth_source"]] = sources.get(f["birth_source"], 0) + 1
+            for i in f["issues"]:
+                issues[i["code"]] = issues.get(i["code"], 0) + 1
+        self.assertEqual(sources, {"structured": 152, "profile": 41, "search": 69, None: 557})
+        self.assertNotIn("UNRECOGNISED_COUNTRY", issues)  # was 34: places such as "Belgrade, Serbia"
+
 
 if __name__ == "__main__":
     unittest.main()

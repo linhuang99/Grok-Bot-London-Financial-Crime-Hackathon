@@ -15,6 +15,7 @@ Update this when you claim or finish a task, or when the score changes.
 | 21 Nov, 15:30 (A5 notes) | 50.0 | 0 | 30/50 right; KYC notes are the verified identity of 22,575 customers; 197 unit tests pass |
 | 21 Nov, 15:10 (A6 unlinked search) | 70.4 | 0 | 38/50 right; every one of the 440 alerts finds a customer; 206 unit tests pass |
 | 21 Nov, 15:15 (A7 merged people) | **81.5** | **0** | 42/50 right. All 819: 420 clears, 92 confirms, 307 REVIEW. 213 unit tests pass |
+| 21 Nov, 15:30 (hit-side fixes) | **100.0** | **0** | 50/50 right. All 819: 448 clears, 121 confirms, 250 REVIEW. 225 unit tests pass. A perfect practice score is not proof for the unseen set |
 
 ## Tasks
 

@@ -95,6 +95,41 @@ def find_dates(text):
     return found
 
 
+# Ways an age is written next to a person: "a 30-year-old", "33 year old",
+# "aged 52", "at the age of 38", "he was 46." (the number must end the phrase,
+# so "was 3 times" and "was 4,600" are not ages), "Fiorani, 52, who..." and
+# "with 26, Maria Miller".
+_AGE_IN_TEXT = re.compile(
+    r"\b(\d{1,3})[- ]years?[- ]old\b"
+    r"|\baged? (?:of )?(\d{1,3})\b"
+    r"|\bage of (\d{1,3})\b"
+    r"|\b(?:was|is|turned|reached|then) (\d{1,3})(?=[.,;:](?!\d)|\s*$)"
+    r"|(?<!\d), (\d{1,3}),(?!\d)"
+    r"|\b(\d{1,3}), (?=[^\W\d_]+ [^\W\d_])",  # "26, Maria Miller": checked for capitals below
+    re.IGNORECASE)
+MAX_AGE = 120
+
+
+def ages_at_dates(text):
+    """[(age, date)] when the text states exactly one age and exactly one date, else [].
+
+    "In February 2010, at the age of 33, ..." gives [(33, (2010, 2, None))]: the
+    person was born in 1976 or 1977. Two dates or two ages are ambiguous and give
+    nothing, as do ages above MAX_AGE: a wrong age would invent a birth year.
+    """
+    if not isinstance(text, str):
+        return []
+    dates = [parsed for _, parsed in find_dates(text)]
+    ages = []
+    for match in _AGE_IN_TEXT.finditer(text):
+        if match.group(6) and not all(w[:1].isupper() for w in text[match.end():].split()[:2]):
+            continue  # "N, x y" counts only before a capitalised name: "26, Maria Miller", not "12, plus costs"
+        ages.append(int(next(g for g in match.groups() if g)))
+    if len(dates) == 1 and len(ages) == 1 and 0 < ages[0] <= MAX_AGE:
+        return [(ages[0], dates[0])]
+    return []
+
+
 def dates_agree(a, b):
     """True when two parsed dates are equal in every part both give.
 
