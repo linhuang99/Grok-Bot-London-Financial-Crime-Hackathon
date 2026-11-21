@@ -16,6 +16,7 @@ Update this when you claim or finish a task, or when the score changes.
 | 21 Nov, 15:10 (A6 unlinked search) | 70.4 | 0 | 38/50 right; every one of the 440 alerts finds a customer; 206 unit tests pass |
 | 21 Nov, 15:15 (A7 merged people) | **81.5** | **0** | 42/50 right. All 819: 420 clears, 92 confirms, 307 REVIEW. 213 unit tests pass |
 | 21 Nov, 15:30 (hit-side fixes) | **100.0** | **0** | 50/50 right. All 819: 448 clears, 121 confirms, 250 REVIEW. 225 unit tests pass. A perfect practice score is not proof for the unseen set |
+| 21 Nov, 16:35 (adversarial fixes) | **100.0** | **0** | Also 100 with 0 unsafe on all four synthetic groups (52 hits) and the independent adversarial set (44). 262 unit tests pass |
 
 ## Tasks
 
