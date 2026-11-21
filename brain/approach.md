@@ -10,9 +10,9 @@ alert ─> 1. resolve customer ─> 2. merge into people ─> 3. customer facts 
 hit ───> 4. hit facts ─────────────────────────────────────────────────────┘
 ```
 
-1. **Resolve customer** (`system/link.py`): follow `account_ref`, `login_handle` or `email`. Joint accounts and unlinked alerts give candidates; keep those that fit the screened name, dob (every part both give), country and city.
-2. **Merge into people** (`system/link.py`): same phone + same full dob, or same document number on approved checks, transitively. Several people left: decide the hit for each; same answer for all, give it; otherwise `REVIEW` + `AMBIGUOUS_CUSTOMER_RECORD`. Either way `customer_record_id = "AMBIGUOUS"`.
-3. **Customer facts** (`system/link.py`): legal name, dob and document country from the latest approved check (KYC table or a KYC note); all countries from every record, the document and notes.
+1. **Resolve customer** (`system/link.py`, lane A): follow `account_ref`, `login_handle` or `email`. Joint accounts and unlinked alerts give candidates; keep those that fit the screened name, dob (every part both give), country and city.
+2. **Merge into people** (`system/link.py`, lane A): same phone + same full dob, or same document number on approved checks, transitively. Several people left: decide the hit for each; same answer for all, give it; otherwise `REVIEW` + `AMBIGUOUS_CUSTOMER_RECORD`. Either way `customer_record_id = "AMBIGUOUS"`.
+3. **Customer facts** (`system/profile.py`, free text read by `system/notes.py`, lane A): legal name, dob and document country from the latest approved check (KYC table or a KYC note); all countries from every record, the document and notes.
 4. **Hit facts** (`system/hitfacts.py`): names and aliases; possible birth years and dates from `dobs`, profile notes, then filtered search results; countries; earliest dated report; date of death.
 5. **Compare** (`system/names.py` for names): name agreement per principle 8 of the policy, dob agreement or contradiction, country overlap, entity type.
 6. **Decide** (`system/decide.py`): contradictions first (time, dob, location, name, type, deceased) give `DIFFERENT_ENTITY`; then agreement (person: name + dob; company: name + country) gives `SAME_ENTITY`; otherwise `REVIEW`. A country difference never clears a hit whose name and dob agree.
@@ -29,21 +29,41 @@ Fact = {"value": ..., "source": "KYC-00030A"}   # hit fields cite "H-XXXXXX#fiel
 PartialDate = (year, month_or_None, day_or_None)
 ```
 
-`system/common.py` (lane B)
+`system/common.py` (lane B, done)
 
 ```python
-parse_date(text) -> PartialDate | None    # every format in brain/data-model.md; None if unparseable
-country_name(text) -> str | None          # "GB" or "United Kingdom" -> "United Kingdom"; None for "International", "Europe"
+fold(text) -> str                         # casefold, accents removed
+parse_date(text) -> PartialDate | None    # one whole date string; None if invalid. Never invents missing parts
+country_name(text) -> str | None          # code / name / nationality -> canonical name; None for regions AND unknown values
+country_at_end(text) -> str | None        # country at the end of an address or place ("Belgrade, Serbia")
+countries_in_text(text) -> set            # full country names and nationalities found in prose
+search_query(name) -> str                 # key for search_results.query (see the proposed fix in brain/status.md)
 ```
 
-`system/data.py` (lane A)
+**Never rule out a match on location using an unrecognised country**: dropping it can invent a mismatch and clear a real match. `country_name` returns `None` for both regions and unknown values today; see the proposed fix in `brain/status.md`.
+
+`system/data.py` (lane A, done)
 
 ```python
-load(data_dir) -> Data   # dict with the raw tables plus indexes:
-# customers_by_id, customers_by_email, accounts_by_id (list: joint accounts), accounts_by_login (list),
-# applicant_by_account_customer, kyc_by_applicant (list), notes_by_email (list),
-# search_by_query (list), hits_by_id, name_variants
+load(data_dir) -> dict   # raises DataError only if alerts.jsonl or hits.jsonl is missing
+# Tables by file name: alerts (file order), hits, customers, accounts, onboarding, kyc_checks, notes, search_results
+# Indexes (lists where one key can match several rows, in file order):
+#   hits_by_id, customers_by_id                      id -> row
+#   customers_by_email, notes_by_email               email -> [rows]          (case-insensitive)
+#   accounts_by_id                                   account -> [rows]        (joint accounts: one row per holder)
+#   accounts_by_login                                login -> [rows]          (case-insensitive)
+#   accounts_by_customer                             customer -> [rows]
+#   applicant_by_account_customer                    (account, customer) -> applicant
+#   kyc_by_applicant                                 applicant -> [checks]    (not sorted by date: A4 picks the latest)
+#   search_by_query                                  normalised query -> [results]
+# name_variants = {"groups": [...], "company_legal_forms": [...]}
+# warnings = [str]   skipped lines, repeated IDs, missing optional files (also printed to stderr)
+id_key(value), text_key(value)       # the lookup keys: trimmed; text_key also lowercase; blank -> None
+search_keys(name) -> [str]           # every possible query key: initials dropped, accents removed, sorted words
+find_search_results(data, name)      # results under any key of the name: finds all 702 individual hits in dev
 ```
+
+Look up with `id_key` / `text_key`, never with raw values. Records keep their original values for evidence.
 
 `system/names.py` (lane B)
 

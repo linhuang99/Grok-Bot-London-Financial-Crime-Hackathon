@@ -2,6 +2,12 @@
 
 Newest first. One line for the choice, one for why.
 
+**21 Nov: Lanes: garyyehhh owns Lane A (customer side: `data.py`, `link.py`, `notes.py`, `profile.py`), linhuang owns Lane B (hit side: `common.py`, `names.py`, `hitfacts.py`).**
+Both lanes wrote date and country helpers in parallel; Lane B's `common.py` was merged first and its modules depend on it, so it stays and Lane A's duplicate was dropped. Lane A proposes fixes to it through `brain/status.md` instead of editing it.
+
+**21 Nov: An unrecognised or ambiguous country value never supports a location clear.**
+A wrong guess ("Korea" as South Korea, "NA" as Namibia) can invent a location mismatch and clear a real match, costing 60; leaving it unknown only costs a `REVIEW`.
+
 **21 Nov: Missing hit type stays unknown; output ordering and English month parsing are explicit.**
 Avoid unsupported assumptions and environment-dependent extraction. Add standard-library-only regression guardrails; keep final identity decisions pending shared pipeline integration.
 

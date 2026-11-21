@@ -37,10 +37,18 @@ customers.email ──> notes.requester_email
 
 ## Customers (system of record)
 
-- `dob` comes in many formats: ISO `YYYY-MM-DD` (most), `DD/MM/YYYY`, `12 March 1990`, `March 12, 1990`, `12 Mar 1990`, `Mar 12, 1990`. Parse all of them.
-- `nationality` is always a full country name. `residence_country` is a 2-letter code (`GB`, `US`, `NG`...) on about 21,600 records and a full name on the rest. Normalise both to one form.
+- `dob` comes in many formats: ISO `YYYY-MM-DD` (most), `DD/MM/YYYY`, `12 March 1990`, `March 12, 1990`, `12 Mar 1990`, `Mar 12, 1990`. Slash dates are always day first (the first number exceeds 12 in 9,909 of 17,203; the second never does). `common.parse_date` reads every date value in the dev files (checked).
+- `nationality` is a full country name or a nationality word (`British`, `Dutch`, `American`); `common.country_name` maps every value in the dev files (checked). `residence_country` is a 2-letter code (`GB`, `US`, `NG`...) on about 21,600 records and a full name on the rest. Normalise both to one form.
 - One person can have several records (an old account, for example). Same phone + same full dob, or the same document number on approved KYC checks, means the same person. A shared phone or address alone does not (family members).
 - `status`: active, closed or dormant. A closed record still describes the person.
+
+## Loading (checked during A2)
+
+- Dev has no duplicate IDs, broken links, case or spacing differences, damaged lines or byte-order marks. `data.load` still defends against all of them, with warnings, because the unseen set is new data.
+- **The unseen folder has no `practice_labels.jsonl`**, and probably no `POLICY.md`: the system must never read either.
+- 14,394 account rows have no onboarding row, and 22,691 onboarding applicants have no KYC check: missing links are normal, not errors.
+- The phone on an account always equals the customer's phone, so `customers.phone` is the one source.
+- Every company customer has a `dob`: it is the incorporation date. 30 individuals have no `dob`.
 
 ## Accounts and KYC
 
@@ -57,7 +65,7 @@ customers.email ──> notes.requester_email
 
 - Names: `name`, plus `first_name`, `middle_name`, `last_name`, `best_matching_name`, and `aliases` (list).
 - `dobs` is a list of `YYYY`, `YYYY-MM-DD` or `YYYY-MM` strings. **667 of 819 hits have no `dobs`**: look in the first paragraph of `profile_notes` (age at a date gives two possible years), then in search results.
-- Countries tied to a hit: `countries`, `nationality`, `citizenship` (lists), the last part of each entry in `addresses`, and `place_of_birth`. Ignore "International" and "Europe".
+- Countries tied to a hit: `countries`, `nationality`, `citizenship` (lists), the last part of each entry in `addresses`, and `place_of_birth`. Ignore "International" and "Europe". Address parts carry tags such as `Spain [Business]`; some `countries` entries and `place_of_birth` are full places (`City, Region, Country`), and `place_of_birth` can hold several places separated by `;`. Territories (Puerto Rico, Jersey, Macao, Northern Mariana Islands) are their own country. `common.country_at_end` handles tags and place prefixes; every hit country value in the dev files is recognised apart from the regions "International" and "Europe".
 - `primary_category` is missing on 345 hits; fall back to the first of `categories`. Values: PEP, Enforcement, Adverse Media, Sanctions, Registration, SOE, Other Segment.
 - `life_status` is Alive, Deceased (6 hits) or missing; `deceased_date` gives the date.
 - `details` is an object (for example `{"pep": "..."}`), `identifiers` and `relationships` are lists.
@@ -66,7 +74,7 @@ customers.email ──> notes.requester_email
 
 ## Search results
 
-- `query` is the name's lowercase words in alphabetical order. Most results are about namesakes: a result is about the hit only if it describes the same kind of listing in a country tied to the hit (see `dev/POLICY.md` principle 5 for the phrases).
+- `query` is the name's lowercase words in alphabetical order, accents removed, **one-letter initials dropped** ("Mitchell, Charlee D." -> `charlee mitchell`) and letters such as `ł` dropped ("Paweł" -> `pawe`). Apostrophes split words ("O'Connor" -> `connor`). Company hits never have search results. Use `data.find_search_results`. Most results are about namesakes: a result is about the hit only if it describes the same kind of listing in a country tied to the hit (see `dev/POLICY.md` principle 5 for the phrases).
 
 ## Practice labels
 
