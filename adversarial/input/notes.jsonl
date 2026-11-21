@@ -1,0 +1,44 @@
+{"note_id": "NOTE-AD0001", "requester_email": "case1@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0002", "requester_email": "case2@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0003", "requester_email": "case3@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "Passport issued on 2022-04-19; document expiry 2032-04-18."}
+{"note_id": "NOTE-AD0004", "requester_email": "case4@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "Onboarding approved identity verification on 2026-02-10: Velora Dunvale, born 14 June 1980; British passport ADVNOTE004."}
+{"note_id": "NOTE-AD0005", "requester_email": "case5@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0006", "requester_email": "case6@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "I lived in Accra, Ghana from 2001 until 2008 before moving to York."}
+{"note_id": "NOTE-AD0007", "requester_email": "case7@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0008", "requester_email": "case8@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0009", "requester_email": "case9@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD000A", "requester_email": "case10@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD000B", "requester_email": "case11@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD000C", "requester_email": "case12@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD000D", "requester_email": "case13@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD000E", "requester_email": "case14@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD000F", "requester_email": "case15@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0010", "requester_email": "case16@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0011", "requester_email": "case17@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0012", "requester_email": "case18@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0013", "requester_email": "case19@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0014", "requester_email": "case20@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0015", "requester_email": "case21@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0016", "requester_email": "case22@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0017", "requester_email": "case23@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0018", "requester_email": "case24@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0019", "requester_email": "case25@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD001A", "requester_email": "case26@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD001B", "requester_email": "case27@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD001C", "requester_email": "case28@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD001D", "requester_email": "case29@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD001E", "requester_email": "case30@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD001F", "requester_email": "case31@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0020", "requester_email": "case32@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0021", "requester_email": "case33@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0022", "requester_email": "case34@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0023", "requester_email": "case35@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0024", "requester_email": "case36@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0025", "requester_email": "case37@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0026", "requester_email": "case38@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0027", "requester_email": "case39@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0028", "requester_email": "case40@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD0029", "requester_email": "case41@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD002A", "requester_email": "case42@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD002B", "requester_email": "case43@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
+{"note_id": "NOTE-AD002C", "requester_email": "case44@adversarial.example", "created_at": "2026-02-10", "channel": "kyc", "text": "No identity changes reported."}
