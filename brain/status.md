@@ -11,6 +11,7 @@ Update this when you claim or finish a task, or when the score changes.
 | 21 Nov, 14:35 (common.py fixes) | 0.0 | 0 | 79 unit tests pass |
 | 21 Nov, 14:15 (A3) | 0.0 | 0 | `link.resolve` finds the accepted customer for 38/38 linked practice labels; not yet called by `run`; 102 unit tests pass |
 | 21 Nov, 14:40 (A4) | 0.0 | 0 | `customer.person` picks the exact latest approved check on 30/30 label paths; not yet called by `run`; 126 unit tests pass |
+| **21 Nov, 15:05 (first integrated run)** | **39.8** | **0** | 26/50 right; reason code and customer record 100% on right decisions. All 819: 155 clears, 42 confirms, 622 REVIEW. Same output every run, from `system/`, without practice labels |
 
 ## Tasks
 
@@ -23,7 +24,7 @@ Plan and times: `brain/roadmap.md`. Edit only your own rows.
 | `common.py` (dates, countries) | garyyehhh (from linhuang) | Done; fixes 2 and 4 below done, 3 and 5 pending |
 | `names.py` (principle 8, with tests) | linhuang | V1 extraction and compatibility tests complete; shared decision integration pending |
 | `hitfacts.py` (names, dobs, countries, reports, death) | linhuang | V1 extraction and compatibility tests complete; shared decision integration pending |
-| `decide.py` with reasons and evidence | both | Not started; needs Lane A's `Person` (A3-A4) |
+| `decide.py` with reasons and evidence; `system/run` wired | garyyehhh | First version done (15:05); unit tests next |
 | `system/README.md` | linhuang | Pending final architecture and worked cases |
 | Reason quality pass | garyyehhh | 16:15-16:40 |
 | Final run, public repo, submission, video | both | 16:40-17:00 |

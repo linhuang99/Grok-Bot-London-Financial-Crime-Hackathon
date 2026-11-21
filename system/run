@@ -3,30 +3,58 @@
 
 Usage: system/run <data folder> <output file>
 
-Writes one JSON line per hit. Placeholder: answers REVIEW for every hit until
-the real decision logic lands.
+For each alert: find the customer (link), build their facts (customer), and
+for each hit build its facts (hitfacts) and decide (decide). Writes one JSON
+line per hit. A failure on one alert or hit is printed and answered REVIEW,
+so one bad record never costs the whole output file.
 """
 import json
 import os
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+import customer  # noqa: E402
+import data as data_module  # noqa: E402
+import decide  # noqa: E402
+import hitfacts  # noqa: E402
+import link  # noqa: E402
+
+
+def review(alert, hit_id, why):
+    return {"hit_id": hit_id, "alert_id": alert.get("alert_id"), "decision": "REVIEW",
+            "reason_code": "INSUFFICIENT_DATA", "customer_record_id": None,
+            "reason": "This hit could not be assessed automatically (%s). A person needs to review it." % why,
+            "evidence": []}
+
+
+def decide_alert(alert, data):
+    try:
+        persons = [customer.person(ids, data) for ids in link.resolve(alert, data)]
+    except Exception as error:  # noqa: BLE001 - never lose the output file
+        print("run: warning: alert %s: %r" % (alert.get("alert_id"), error), file=sys.stderr)
+        return [review(alert, hit_id, "customer lookup failed") for hit_id in alert.get("hit_ids") or []]
+    lines = []
+    for hit_id in alert.get("hit_ids") or []:
+        hit = data["hits_by_id"].get(hit_id)
+        try:
+            if hit is None:
+                raise KeyError("hit not in hits.jsonl")
+            facts = hitfacts.hit_facts(hit, data)
+            lines.append(decide.decide(alert, hit, persons, facts, data))
+        except Exception as error:  # noqa: BLE001
+            print("run: warning: hit %s: %r" % (hit_id, error), file=sys.stderr)
+            lines.append(review(alert, hit_id, "hit assessment failed"))
+    return lines
+
 
 def main():
     data_dir, out_path = sys.argv[1], sys.argv[2]
-    with open(os.path.join(data_dir, "alerts.jsonl"), encoding="utf-8") as f:
-        alerts = [json.loads(line) for line in f]
+    data = data_module.load(data_dir)
     with open(out_path, "w", encoding="utf-8") as out:
-        for alert in alerts:
-            for hit_id in alert["hit_ids"]:
-                out.write(json.dumps({
-                    "hit_id": hit_id,
-                    "alert_id": alert["alert_id"],
-                    "decision": "REVIEW",
-                    "reason_code": "INSUFFICIENT_DATA",
-                    "customer_record_id": None,
-                    "reason": "Not yet assessed.",
-                    "evidence": [],
-                }) + "\n")
+        for alert in data["alerts"]:
+            for line in decide_alert(alert, data):
+                out.write(json.dumps(line, ensure_ascii=False) + "\n")
 
 
 if __name__ == "__main__":

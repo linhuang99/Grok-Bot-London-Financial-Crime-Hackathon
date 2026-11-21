@@ -41,6 +41,12 @@ def text_key(value):
     return key.lower() if key else None
 
 
+def phone_key(value):
+    """Lookup key for a phone number: its digits only. Fewer than 6 digits is not a usable phone."""
+    digits = re.sub(r"\D", "", value) if isinstance(value, str) else ""
+    return digits if len(digits) >= 6 else None
+
+
 # Letters that accent removal leaves alone, written the way they are usually spelt in ASCII.
 _ASCII_SPELLING = str.maketrans({"ł": "l", "ø": "o", "æ": "ae", "œ": "oe", "đ": "d", "ð": "d",
                                  "þ": "th", "ı": "i", "ħ": "h"})
@@ -113,6 +119,8 @@ def load(data_dir):
     data["kyc_by_applicant"] = _group(data["kyc_checks"], "applicant_id", id_key)
     data["notes_by_email"] = _group(data["notes"], "requester_email", text_key)
     data["search_by_query"] = _group(data["search_results"], "query", _stored_query_key)
+    data["customers_by_phone"] = _group(data["customers"], "phone", phone_key)
+    data["customers_by_document"] = _document_owners(data)
     return data
 
 
@@ -177,6 +185,23 @@ def _applicants(onboarding, warnings):
             continue
         index.setdefault(key, applicant)
     return index
+
+
+def _document_owners(data):
+    """Document number on an approved check -> customer IDs whose onboarding leads to that check."""
+    customers_by_applicant = {}
+    for row in data["onboarding"]:
+        applicant, customer = id_key(row.get("kyc_applicant_id")), id_key(row.get("customer_id"))
+        if applicant and customer:
+            customers_by_applicant.setdefault(applicant, []).append(customer)
+    owners = {}
+    for check in data["kyc_checks"]:
+        number = text_key(check.get("document_number"))
+        if number and (check.get("result") or "").strip().lower() == "approved":
+            for customer in customers_by_applicant.get(id_key(check.get("applicant_id")), []):
+                if customer not in owners.setdefault(number, []):
+                    owners[number].append(customer)
+    return owners
 
 
 def _stored_query_key(query):

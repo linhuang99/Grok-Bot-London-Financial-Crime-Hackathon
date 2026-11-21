@@ -7,8 +7,8 @@ identity check gives the legal name and date of birth, and rejected or expired
 checks are not evidence. Without one, the customer record's own (declared)
 facts are used, and their CUS source shows it.
 """
-from common import country_name, fold, parse_date
-from data import id_key
+from common import countries_in_text, country_name, fold, parse_date
+from data import id_key, phone_key, text_key
 
 
 def person(record_ids, data):
@@ -22,6 +22,7 @@ def person(record_ids, data):
         "dob": Fact | None,              verified if readable, else declared; companies: incorporation
         "countries": [Fact],             residence and nationality of every record, every approved document
         "unreadable_countries": [Fact],  values we could not read: never clear on location while any exist
+        "complete_fields": [str],        fields Lane A has fully investigated (see complete_fields below)
     }
     """
     records = [data["customers_by_id"][i] for i in map(id_key, record_ids) if i in data["customers_by_id"]]
@@ -48,7 +49,41 @@ def person(record_ids, data):
         "dob": _dob(verified, records),
         "countries": countries,
         "unreadable_countries": unreadable,
+        "complete_fields": complete_fields(records, verified is not None, data),
     }
+
+
+def complete_fields(records, verified, data):
+    """Fields of this person that Lane A has fully investigated, for quality.adapt_person.
+
+    Claimed conservatively, because a clear on an incomplete field can be unsafe:
+    - names, births: verified by an approved table check, or no KYC note exists
+      that could hold a newer verified identity (KYC notes are read in A5);
+    - countries: no note mentions a country (notes are read in A5) and no other
+      record could belong to the same person (records are merged in A7).
+    """
+    notes = [n for r in records for n in data["notes_by_email"].get(text_key(r.get("email")), [])]
+    kyc_notes = [n for n in notes if (n.get("channel") or "").strip().lower() == "kyc"]
+    fields = ["entity_type"]
+    if verified or not kyc_notes:
+        fields += ["names", "births"]
+    if not any(countries_in_text(n.get("text") or "") for n in notes) and not _may_have_other_records(records, data):
+        fields.append("countries")
+    return fields
+
+
+def _may_have_other_records(records, data):
+    """True when another record shares a phone and full date of birth, or an approved document number."""
+    own = {r["record_id"] for r in records}
+    for record in records:
+        dob = parse_date(record.get("dob"))
+        for other in data["customers_by_phone"].get(phone_key(record.get("phone")), []):
+            if other["record_id"] not in own and dob and None not in dob and parse_date(other.get("dob")) == dob:
+                return True
+    for check in _approved_checks(records, data):
+        if set(data["customers_by_document"].get(text_key(check.get("document_number")), [])) - own:
+            return True
+    return False
 
 
 def _fact(value, source):

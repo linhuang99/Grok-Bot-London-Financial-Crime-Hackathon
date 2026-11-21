@@ -104,6 +104,10 @@ Person = {
 }
 ```
 
+**`system/decide.py` (first version, 15:05):** `decide(alert, hit, persons, facts, data) -> output line`. Clears in policy order (type, deceased, temporal, dob, location, name), each only when `field_is_complete` holds on both sides for the fields it uses; then confirms; otherwise REVIEW. Several persons: same decision for all gives it, otherwise `AMBIGUOUS_CUSTOMER_RECORD`. `system/run` answers REVIEW for any alert or hit that raises, so one bad record never loses the output file.
+
+`Person["complete_fields"]` (Lane A) is what `quality.adapt_person` receives: names/births only when verified by a table check or no KYC note exists (A5 widens this), countries only when no note mentions a country and no other record may be the same person (A5, A7 widen this).
+
 **Rules for `decide.py` when using a Person:**
 - Compare the hit's names with `legal_name`. Clear on `NAME_MISMATCH_VERIFIED` only when `verified_name` is not `None`.
 - **Never clear on `LOCATION_MISMATCH` while `unreadable_countries` is not empty**: an unreadable value might be the matching country.
