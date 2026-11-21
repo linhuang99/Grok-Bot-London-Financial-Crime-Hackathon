@@ -10,15 +10,21 @@ Update this when you claim or finish a task, or when the score changes.
 
 ## Tasks
 
+Plan and times: `brain/roadmap.md`. Edit only your own rows.
+
 | Task | Owner | State |
 |---|---|---|
-| Repo scaffold, `brain/`, agent instructions | garyyehhh | done |
-| Name matcher, policy principle 8 (`system/names.py` + tests) | garyyehhh | next |
-| Hit facts: dobs, notes, search results, countries, reports (`system/hitfacts.py`) | garyyehhh | next |
-| Customer resolution and merging people (`system/link.py`) | linhuang99 (proposed) | next |
-| Decision function (`system/decide.py`) | both | after the above |
-| `system/README.md` with diagram and three worked cases | both | before 16:30 |
-| Demo video, submission | both | 16:30-17:00 |
+| Repo scaffold, `brain/`, agent instructions, roadmap | garyyehhh | done |
+| `common.py` (dates, countries) and stubs wired into `system/run` | garyyehhh | next, by 12:50 |
+| `names.py` (principle 8, with tests) | garyyehhh | by 14:00 |
+| `hitfacts.py` (names, dobs, countries, reports, death) | garyyehhh | by 14:00 |
+| `decide.py` with reasons and evidence | garyyehhh | by 14:45 |
+| `data.py` (load and index every file) | linhuang99 | next, by 12:50 |
+| `link.py` (linked alerts, joint accounts, verified facts) | linhuang99 | by 14:00 |
+| `link.py` (unlinked alerts, merging people) | linhuang99 | by 14:45 |
+| `system/README.md` | garyyehhh | 16:15-16:40 |
+| Reason quality pass | linhuang99 | 16:15-16:40 |
+| Final run, public repo, submission, video | both | 16:40-17:00 |
 
 ## Open questions
 

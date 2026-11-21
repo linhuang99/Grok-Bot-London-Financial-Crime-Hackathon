@@ -4,7 +4,7 @@ This repo is a two-person hackathon entry for Track 2, "Same Person or Not?". Tw
 
 ## Before you change anything
 
-1. Read `brain/README.md`, then `brain/status.md` (who is doing what right now).
+1. Read `brain/README.md`, then `brain/roadmap.md` (the plan and your lane) and `brain/status.md` (who is doing what right now).
 2. Read the other `brain/` files your task touches. `dev/POLICY.md` is the spec; `brain/` explains how we apply it.
 3. Do not start a task someone else has claimed in `brain/status.md`.
 

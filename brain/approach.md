@@ -18,6 +18,75 @@ hit ───> 4. hit facts ─────────────────�
 6. **Decide** (`system/decide.py`): contradictions first (time, dob, location, name, type, deceased) give `DIFFERENT_ENTITY`; then agreement (person: name + dob; company: name + country) gives `SAME_ENTITY`; otherwise `REVIEW`. A country difference never clears a hit whose name and dob agree.
 7. **Explain**: reason code, 2-4 sentences with this hit's facts, and only the IDs that decided it.
 
+## Interfaces
+
+Agreed contracts between the lanes, so each side can build and test against them before the other side is done. Change one only after telling the other person, and update it here in the same commit.
+
+Every fact carries the ID that proves it, so evidence falls out of the facts used:
+
+```python
+Fact = {"value": ..., "source": "KYC-00030A"}   # hit fields cite "H-XXXXXX#field", e.g. "H-2C4CE7#dobs"
+PartialDate = (year, month_or_None, day_or_None)
+```
+
+`system/common.py` (lane B)
+
+```python
+parse_date(text) -> PartialDate | None    # every format in brain/data-model.md; None if unparseable
+country_name(text) -> str | None          # "GB" or "United Kingdom" -> "United Kingdom"; None for "International", "Europe"
+```
+
+`system/data.py` (lane A)
+
+```python
+load(data_dir) -> Data   # dict with the raw tables plus indexes:
+# customers_by_id, customers_by_email, accounts_by_id (list: joint accounts), accounts_by_login (list),
+# applicant_by_account_customer, kyc_by_applicant (list), notes_by_email (list),
+# search_by_query (list), hits_by_id, name_variants
+```
+
+`system/names.py` (lane B)
+
+```python
+names_agree(name_a, name_b, variants) -> bool   # dev/POLICY.md principle 8
+```
+
+`system/link.py` (lane A)
+
+```python
+resolve(alert, data) -> list[Person]   # [] = not found, 1 = resolved, >1 = several people fit
+Person = {
+    "record_ids": ["CUS-..."],            # all records of this person
+    "record_id": "CUS-...",               # the one to output
+    "entity_type": "Individual" | "Company",
+    "verified_name": Fact | None,         # latest approved check
+    "names": [Fact],                      # verified first, then record, preferred and login names
+    "dob": Fact | None,                   # value is a PartialDate; verified beats declared
+    "countries": [Fact],                  # residence, nationality, document country, places in notes
+}
+```
+
+`system/hitfacts.py` (lane B)
+
+```python
+hit_facts(hit, data) -> HitFacts
+HitFacts = {
+    "hit_id": "H-...",
+    "entity_type": "Individual" | "Company",
+    "names": [str],                       # name, aliases, first/middle/last combinations
+    "births": [Fact],                     # every possible birth date (an age at a date gives two years)
+    "countries": [Fact],
+    "earliest_report": Fact | None,       # value is a PartialDate
+    "death": Fact | None,
+}
+```
+
+`system/decide.py` (shared)
+
+```python
+decide(alert, persons, facts) -> dict   # one output line, the fields in brain/brief.md
+```
+
 ## Module ownership
 
-See `brain/status.md` for who holds what right now.
+See `brain/roadmap.md` for lanes and `brain/status.md` for who holds what right now.

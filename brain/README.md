@@ -7,7 +7,8 @@ Everything we have learned that isn't obvious from the code. Pull before you sta
 | `status.md` | Who is doing what, current score, next tasks, open questions | You claim or finish a task, the score changes, a question appears or is answered |
 | `brief.md` | The challenge: deliverable, output format, scoring, submission rules | The organisers clarify something |
 | `data-model.md` | The files, how they link, value formats and quirks | You find a new fact about the data |
-| `approach.md` | The pipeline, what each module does, how policy rules map to code | The design or a module's job changes |
+| `roadmap.md` | Plan to 17:00: two lanes, phases, sync points, what to cut if behind | The plan changes at a sync point |
+| `approach.md` | The pipeline and the interfaces between the two lanes | The design or an interface changes |
 | `decisions.md` | Choices we made and why | You choose between options |
 
 Rules for editing:
